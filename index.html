@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Attendance System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+</head>
+<body class="bg-slate-50 font-sans">
+
+    <div class="max-w-md mx-auto min-h-screen flex flex-col p-4">
+        <header class="py-6 text-center">
+            <h1 class="text-2xl font-bold text-slate-800">Attendance Scanner</h1>
+            <p class="text-slate-500 text-sm">Scan your QR code to check in</p>
+        </header>
+
+        <div class="relative bg-black rounded-2xl overflow-hidden shadow-xl aspect-square mb-6">
+            <video id="preview" class="w-full h-full object-cover"></video>
+            <div class="absolute inset-0 border-2 border-dashed border-white/30 m-12 rounded-xl pointer-events-none"></div>
+        </div>
+
+        <div id="modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+                <h3 class="text-xl font-semibold mb-2">Confirm Attendance</h3>
+                <div id="scannedInfo" class="bg-slate-100 p-4 rounded-lg mb-6 break-words font-mono text-sm">
+                    </div>
+                <div class="flex gap-3">
+                    <button onclick="closeModal()" class="flex-1 py-3 border border-slate-200 rounded-xl font-medium">Cancel</button>
+                    <button onclick="submitData()" id="confirmBtn" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700">Submit</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="status" class="text-center text-sm font-medium text-slate-600">
+            Searching for camera...
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
+        let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+        let currentData = null;
+
+        // Initialize Camera
+        Instascan.Camera.getCameras().then(function (cameras) {
+            if (cameras.length > 0) {
+                // Use the back camera if available
+                let backCam = cameras.find(c => c.name.toLowerCase().includes('back')) || cameras[0];
+                scanner.start(backCam);
+                document.getElementById('status').innerText = "Camera Active";
+            } else {
+                document.getElementById('status').innerText = "No cameras found.";
+            }
+        }).catch(function (e) {
+            console.error(e);
+            document.getElementById('status').innerText = "Camera error: " + e;
+        });
+
+        // Handle Scan Results
+        scanner.addListener('scan', function (content) {
+            try {
+                // Assuming QR contains JSON like: {"id": "123", "info": "John Doe"}
+                // Or just a plain string
+                currentData = content;
+                document.getElementById('scannedInfo').innerText = content;
+                document.getElementById('modal').classList.remove('hidden');
+            } catch (err) {
+                alert("Invalid QR format");
+            }
+        });
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            currentData = null;
+        }
+
+        async function submitData() {
+            const btn = document.getElementById('confirmBtn');
+            btn.disabled = true;
+            btn.innerText = "Sending...";
+
+            try {
+                // Preparing data for the sheet
+                const payload = {
+                    id: currentData,
+                    info: "Verified via Web"
+                };
+
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Apps Script requires no-cors
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                alert("Attendance Recorded!");
+                closeModal();
+            } catch (error) {
+                console.error(error);
+                alert("Submission failed.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Submit";
+            }
+        }
+    </script>
+</body>
+</html>

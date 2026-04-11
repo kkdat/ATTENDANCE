@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Hub | Ultra-Live Dashboard</title>
+    <title>Attendance Hub | Real-Time Search Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@vanilla-calendar/pro/build/vanilla-calendar.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@vanilla-calendar/pro/build/vanilla-calendar.min.js" defer></script>
@@ -15,23 +15,16 @@
             background-color: #020617;
             color: #f8fafc;
         }
-
         .glass {
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
-
         .vanilla-calendar { background: transparent !important; border: none !important; width: 100% !important; }
         .vanilla-calendar-day__btn { color: #ffffff !important; border-radius: 12px !important; }
-        .vanilla-calendar-day__btn_active { background: #ffffff !important; color: #1e3a8a !important; }
-
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-            cursor: pointer;
-        }
-
+        .vanilla-calendar-day__btn_active { background: #ffffff !important; color: #1e3a8a !important; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
     </style>
@@ -46,8 +39,8 @@
             </div>
             <div class="flex items-center gap-4">
                 <div class="flex items-center gap-2 bg-blue-500/10 px-4 py-2 rounded-full border border-blue-500/30">
-                    <span class="w-2 h-2 bg-blue-400 rounded-full animate-ping"></span>
-                    <div id="sync-status" class="text-[10px] font-black uppercase tracking-widest text-blue-400">3s Auto-Refresh</div>
+                    <span id="sync-dot" class="w-2 h-2 bg-blue-400 rounded-full animate-ping"></span>
+                    <div id="sync-status" class="text-[10px] font-black uppercase tracking-widest text-blue-400">3s Live Feed</div>
                 </div>
                 <a href="index.html" class="glass px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-white hover:bg-blue-600 transition-all shadow-xl">← Scanner</a>
             </div>
@@ -80,7 +73,7 @@
                     <div class="p-8 border-b border-white/10 flex justify-between items-center bg-black/20">
                         <div>
                             <h2 id="display-date" class="text-3xl font-black text-white">All Records</h2>
-                            <p id="record-count" class="text-xs text-blue-300 font-bold uppercase mt-2 tracking-widest">0 Records Found</p>
+                            <p id="record-count" class="text-xs text-blue-300 font-bold uppercase mt-2 tracking-widest">Loading Records...</p>
                         </div>
                         <div id="last-sync" class="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">Initializing...</div>
                     </div>
@@ -95,7 +88,7 @@
                                 </tr>
                             </thead>
                             <tbody id="attendance-body">
-                                <tr><td colspan="3" class="py-20 text-center text-slate-400 italic">Connecting to live feed...</td></tr>
+                                <tr><td colspan="3" class="py-20 text-center text-slate-400 italic">Connecting to Google Sheets...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -105,12 +98,15 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxb5PWexpHIISVPFGiOKkXaz2Adwd5VBgZxojv2AUkZXS8hpIGB9LIL-oLWtNVBdHHD/exec"; 
+        // REPLACE THIS URL WITH YOUR DEPLOYED WEB APP URL
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx070GvnvssloSbW0cvD72SXT13pg84qLONHVFL9eQG5q2nmbvj_awOanMfGIuheqKG/exec"; 
+        
         let allData = [];
         let selectedDate = null;
         let calendarInstance;
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Calendar
             calendarInstance = new VanillaCalendar('#calendar', {
                 type: 'default',
                 settings: {
@@ -127,24 +123,40 @@
             });
             calendarInstance.init();
             
+            // Initial Fetch
             fetchData();
-            // SPEED INCREASE: Interval set to 3000ms (3 seconds)
+            
+            // SET REFRESH: 3 Seconds
             setInterval(fetchData, 3000); 
         });
 
         async function fetchData() {
             try {
-                const response = await fetch(SCRIPT_URL + "?action=read");
+                const response = await fetch(`${SCRIPT_URL}?action=read`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                
                 const newData = await response.json();
                 
-                // Compare data to prevent unnecessary DOM flashing
+                // If data is empty but connection was successful
+                if (newData.length === 0) {
+                    document.getElementById('attendance-body').innerHTML = '<tr><td colspan="3" class="py-24 text-center text-red-400 font-bold uppercase text-[10px] tracking-widest">Database is empty. Check your Google Sheet.</td></tr>';
+                    document.getElementById('record-count').innerText = "0 Records Found";
+                    return;
+                }
+
+                // Update only if data changed
                 if (JSON.stringify(newData) !== JSON.stringify(allData)) {
                     allData = newData;
                     applyFilters();
                 }
-                document.getElementById('last-sync').innerText = `Updated: ${new Date().toLocaleTimeString()}`;
+                
+                document.getElementById('last-sync').innerText = `Live: ${new Date().toLocaleTimeString()}`;
+                document.getElementById('sync-dot').classList.remove('bg-red-500');
+                document.getElementById('sync-dot').classList.add('bg-blue-400');
             } catch (e) { 
-                console.error("Connection Interrupted"); 
+                console.error("Sync Error:", e);
+                document.getElementById('last-sync').innerText = "CONNECTION LOST";
+                document.getElementById('sync-dot').classList.add('bg-red-500');
             }
         }
 
@@ -174,10 +186,13 @@
                 : "All Records";
 
             const filtered = allData.filter(row => {
-                const rowDate = new Date(row.timestamp).toISOString().split('T')[0];
-                const matchesDate = !selectedDate || rowDate === selectedDate;
-                const matchesSearch = row.id.toLowerCase().includes(searchQuery) || 
-                                     row.info.toLowerCase().includes(searchQuery);
+                // Formatting row date for comparison
+                const timestampDate = new Date(row.timestamp);
+                const rowDateString = timestampDate.toISOString().split('T')[0];
+                
+                const matchesDate = !selectedDate || rowDateString === selectedDate;
+                const matchesSearch = row.id.toString().toLowerCase().includes(searchQuery) || 
+                                     row.info.toString().toLowerCase().includes(searchQuery);
                 return matchesDate && matchesSearch;
             });
 
@@ -193,11 +208,13 @@
                 return;
             }
 
-            body.innerHTML = data.map(row => `
+            body.innerHTML = data.map(row => {
+                const dateObj = new Date(row.timestamp);
+                return `
                 <tr class="group border-b border-white/5 hover:bg-white/5 transition-all">
                     <td class="py-6 px-2 font-mono text-blue-400 font-bold text-xs">
-                        ${new Date(row.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}
-                        <div class="text-[9px] text-slate-500 font-bold">${new Date(row.timestamp).toLocaleDateString()}</div>
+                        ${dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}
+                        <div class="text-[9px] text-slate-500 font-bold">${dateObj.toLocaleDateString()}</div>
                     </td>
                     <td class="py-6 px-2">
                         <div class="font-black text-white group-hover:text-blue-400 transition-colors uppercase tracking-tight">${row.id}</div>
@@ -208,7 +225,7 @@
                         </span>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
     </script>
 </body>

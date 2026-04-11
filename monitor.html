@@ -3,78 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Monitor</title>
+    <title>Attendance Monitor | Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@vanilla-calendar/pro/build/vanilla-calendar.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@vanilla-calendar/pro/build/vanilla-calendar.min.js" defer></script>
     <style>
+        /* Matching index.html sophisticated glassmorphism */
         body {
-            background: radial-gradient(at top left, #1e293b, transparent),
-                        radial-gradient(at bottom right, #334155, transparent);
+            background: radial-gradient(at top left, #6366f1, transparent),
+                        radial-gradient(at bottom right, #3b82f6, transparent),
+                        radial-gradient(at bottom left, #ec4899, transparent);
             background-color: #0f172a;
+            color: white;
         }
+
         .glass {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .vanilla-calendar { 
-            background: transparent !important; 
+
+        /* Calendar Styling for "Real Calendar" look */
+        .vanilla-calendar {
+            background: transparent !important;
             border: none !important;
-            color: white !important;
+            width: 100% !important;
         }
-        .vanilla-calendar-day__btn { color: white !important; }
-        .vanilla-calendar-day__btn_active { background: #3b82f6 !important; border-radius: 12px; }
-        
+        .vanilla-calendar-grid {
+            gap: 5px;
+        }
+        .vanilla-calendar-day__btn {
+            color: rgba(255,255,255,0.8) !important;
+            background: rgba(255,255,255,0.03) !important;
+            border-radius: 8px !important;
+            aspect-ratio: 1/1;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.05) !important;
+            transition: all 0.2s ease;
+        }
+        .vanilla-calendar-day__btn:hover {
+            background: rgba(59, 130, 246, 0.3) !important;
+            transform: translateY(-2px);
+        }
+        .vanilla-calendar-day__btn_active {
+            background: #3b82f6 !important;
+            color: white !important;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+        .vanilla-calendar-week__day {
+            color: #60a5fa !important;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
     </style>
 </head>
-<body class="font-sans min-h-screen text-white p-4 md:p-8">
+<body class="font-sans min-h-screen p-4 md:p-8">
 
-    <div class="max-w-4xl mx-auto">
-        <header class="mb-8 flex justify-between items-center">
-            <div>
-                <h1 class="text-3xl font-black tracking-tight">Monitoring <span class="text-blue-400">Hub</span></h1>
-                <p class="text-slate-400 text-sm">Real-time attendance insights</p>
+    <div class="max-w-5xl mx-auto">
+        <header class="mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-center md:text-left">
+                <h1 class="text-4xl font-black tracking-tighter drop-shadow-lg">Monitoring <span class="text-blue-400">Hub</span></h1>
+                <p class="text-blue-100/60 text-xs font-bold uppercase tracking-[0.3em] mt-1">Real-time Sheet Synchronizer</p>
             </div>
-            <a href="index.html" class="glass px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-white/10 transition">Open Scanner</a>
+            <a href="index.html" class="glass px-8 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-white/10 transition-all border border-white/20 active:scale-95">
+                Open Scanner
+            </a>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-1">
-                <div class="glass rounded-[2rem] p-6 shadow-2xl">
-                    <h2 class="text-sm font-bold text-blue-400 uppercase tracking-[0.2em] mb-4">Select Date</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-5">
+                <div class="glass rounded-[2.5rem] p-6 shadow-2xl border border-white/20">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-sm font-bold text-blue-400 uppercase tracking-[0.2em]">Select Attendance Date</h2>
+                    </div>
                     <div id="calendar"></div>
                 </div>
             </div>
 
-            <div class="lg:col-span-2">
-                <div class="glass rounded-[2rem] overflow-hidden shadow-2xl flex flex-col h-[500px]">
-                    <div class="p-6 border-b border-white/10 flex justify-between items-center">
+            <div class="lg:col-span-7">
+                <div class="glass rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[550px] border border-white/20">
+                    <div class="p-8 border-b border-white/10 flex justify-between items-center bg-white/5">
                         <div>
-                            <h2 id="display-date" class="text-xl font-bold">Today</h2>
-                            <p id="record-count" class="text-xs text-slate-400">0 records found</p>
+                            <h2 id="display-date" class="text-2xl font-bold text-white">Today</h2>
+                            <p id="record-count" class="text-xs text-blue-200/50 font-bold uppercase mt-1 tracking-widest">0 records found</p>
                         </div>
-                        <button onclick="fetchData()" class="p-2 hover:bg-white/10 rounded-lg transition">
-                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <button onclick="fetchData()" class="w-12 h-12 glass flex items-center justify-center rounded-xl hover:bg-white/10 transition-all active:rotate-180 duration-500">
+                            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
                     </div>
 
-                    <div class="flex-grow overflow-y-auto p-4">
+                    <div class="flex-grow overflow-y-auto p-6">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="text-slate-500 text-[10px] uppercase tracking-widest border-b border-white/5">
-                                    <th class="py-3 px-2">Time</th>
-                                    <th class="py-3 px-2">Identification</th>
-                                    <th class="py-3 px-2">Status</th>
+                                <tr class="text-blue-400/50 text-[10px] uppercase tracking-[0.2em] border-b border-white/10">
+                                    <th class="pb-4 px-2">Time</th>
+                                    <th class="pb-4 px-2">Identification</th>
+                                    <th class="pb-4 px-2">Status</th>
                                 </tr>
                             </thead>
-                            <tbody id="attendance-body" class="text-sm">
+                            <tbody id="attendance-body">
                                 <tr>
-                                    <td colspan="3" class="py-10 text-center text-slate-500 italic">Select a date to load data</td>
+                                    <td colspan="3" class="py-20 text-center text-white/40 italic text-sm">Select a date from the calendar to view logs</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -85,13 +124,12 @@
     </div>
 
     <script>
-        // Use the SAME Web App URL from your Scanner
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1ZB3iMCv80jB4jkBsFz13KXvX9Ilv6VC-5gDlb4vZUcYiVdsodLqLNg_hSs6BsPQk/exec"; 
         let allData = [];
 
-        // Initialize Calendar
         document.addEventListener('DOMContentLoaded', () => {
             const calendar = new VanillaCalendar('#calendar', {
+                type: 'default',
                 settings: {
                     selection: { day: 'single' },
                     selected: { dates: [new Date().toISOString().split('T')[0]] },
@@ -103,23 +141,20 @@
                 },
             });
             calendar.init();
-            fetchData(); // Initial load
+            fetchData();
         });
 
         async function fetchData() {
             const body = document.getElementById('attendance-body');
-            body.innerHTML = '<tr><td colspan="3" class="py-10 text-center animate-pulse">Synchronizing with Sheet...</td></tr>';
+            body.innerHTML = '<tr><td colspan="3" class="py-20 text-center"><span class="animate-pulse text-blue-400 font-bold tracking-widest uppercase text-xs text-center block">Accessing Cloud Database...</span></td></tr>';
             
             try {
-                // We add a GET request to your Apps Script
                 const response = await fetch(SCRIPT_URL + "?action=read");
                 allData = await response.json();
-                
-                // Default filter to today
                 const today = new Date().toISOString().split('T')[0];
                 filterDataByDate(today);
             } catch (e) {
-                body.innerHTML = '<tr><td colspan="3" class="py-10 text-center text-red-400">Error connecting to database</td></tr>';
+                body.innerHTML = '<tr><td colspan="3" class="py-20 text-center text-red-400 font-bold">Encrypted Connection Failed</td></tr>';
             }
         }
 
@@ -136,19 +171,21 @@
 
         function renderTable(data) {
             const body = document.getElementById('attendance-body');
-            document.getElementById('record-count').innerText = `${data.length} records found`;
+            document.getElementById('record-count').innerText = `${data.length} entries found`;
 
             if (data.length === 0) {
-                body.innerHTML = '<tr><td colspan="3" class="py-10 text-center text-slate-500 italic text-xs">No attendance recorded for this day</td></tr>';
+                body.innerHTML = '<tr><td colspan="3" class="py-20 text-center text-white/30 italic text-sm">No attendance logs found for this date</td></tr>';
                 return;
             }
 
             body.innerHTML = data.map(row => `
-                <tr class="border-b border-white/5 hover:bg-white/5 transition">
-                    <td class="py-4 px-2 font-mono text-blue-300 text-xs">${new Date(row.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-                    <td class="py-4 px-2 font-bold">${row.id}</td>
-                    <td class="py-4 px-2">
-                        <span class="bg-blue-500/20 text-blue-400 text-[10px] px-2 py-1 rounded-md border border-blue-400/20 uppercase font-black">${row.info}</span>
+                <tr class="group border-b border-white/5 hover:bg-white/5 transition-all">
+                    <td class="py-5 px-2 font-mono text-blue-400 text-xs">${new Date(row.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                    <td class="py-5 px-2">
+                        <div class="font-bold text-white group-hover:text-blue-400 transition-colors">${row.id}</div>
+                    </td>
+                    <td class="py-5 px-2">
+                        <span class="bg-blue-500/10 text-blue-400 text-[10px] px-3 py-1.5 rounded-lg border border-blue-400/20 uppercase font-black tracking-wider">${row.info}</span>
                     </td>
                 </tr>
             `).join('');

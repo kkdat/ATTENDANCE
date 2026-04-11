@@ -98,15 +98,14 @@
     </div>
 
     <script>
-        // REPLACE THIS URL WITH YOUR DEPLOYED WEB APP URL
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx070GvnvssloSbW0cvD72SXT13pg84qLONHVFL9eQG5q2nmbvj_awOanMfGIuheqKG/exec"; 
+        // Ensure this URL is from your LATEST "Anyone" deployment
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzd14_sg9LcG9ZUutmpzuamT5BQjssQhrBTt82uCLyhYWMdMnbmdGi3gjUsG7hOMEMc/exec"; 
         
         let allData = [];
         let selectedDate = null;
         let calendarInstance;
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize Calendar
             calendarInstance = new VanillaCalendar('#calendar', {
                 type: 'default',
                 settings: {
@@ -123,10 +122,8 @@
             });
             calendarInstance.init();
             
-            // Initial Fetch
             fetchData();
-            
-            // SET REFRESH: 3 Seconds
+            // Interval: 3000ms = 3 Seconds
             setInterval(fetchData, 3000); 
         });
 
@@ -137,25 +134,27 @@
                 
                 const newData = await response.json();
                 
-                // If data is empty but connection was successful
+                // Debugging: View this in Browser Console (F12)
+                console.log("Raw Data from Sheet:", newData);
+
                 if (newData.length === 0) {
-                    document.getElementById('attendance-body').innerHTML = '<tr><td colspan="3" class="py-24 text-center text-red-400 font-bold uppercase text-[10px] tracking-widest">Database is empty. Check your Google Sheet.</td></tr>';
+                    document.getElementById('attendance-body').innerHTML = '<tr><td colspan="3" class="py-24 text-center text-orange-400 font-bold uppercase text-[10px] tracking-widest">Connected. No data found in Row 2 onwards.</td></tr>';
                     document.getElementById('record-count').innerText = "0 Records Found";
                     return;
                 }
 
-                // Update only if data changed
+                // Only update DOM if the data has actually changed (prevents flicker)
                 if (JSON.stringify(newData) !== JSON.stringify(allData)) {
                     allData = newData;
                     applyFilters();
                 }
                 
                 document.getElementById('last-sync').innerText = `Live: ${new Date().toLocaleTimeString()}`;
-                document.getElementById('sync-dot').classList.remove('bg-red-500');
-                document.getElementById('sync-dot').classList.add('bg-blue-400');
+                document.getElementById('sync-dot').classList.replace('bg-red-500', 'bg-blue-400');
             } catch (e) { 
                 console.error("Sync Error:", e);
-                document.getElementById('last-sync').innerText = "CONNECTION LOST";
+                document.getElementById('last-sync').innerText = "OFFLINE / URL ERROR";
+                document.getElementById('sync-dot').classList.replace('bg-blue-400', 'bg-red-500');
                 document.getElementById('sync-dot').classList.add('bg-red-500');
             }
         }
@@ -186,7 +185,6 @@
                 : "All Records";
 
             const filtered = allData.filter(row => {
-                // Formatting row date for comparison
                 const timestampDate = new Date(row.timestamp);
                 const rowDateString = timestampDate.toISOString().split('T')[0];
                 

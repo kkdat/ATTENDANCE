@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Monitor | Dashboard</title>
+    <title>Attendance Hub | Smart Search Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@vanilla-calendar/pro/build/vanilla-calendar.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@vanilla-calendar/pro/build/vanilla-calendar.min.js" defer></script>
@@ -13,62 +13,25 @@
                         radial-gradient(at bottom right, #2563eb, transparent),
                         radial-gradient(at bottom left, #db2777, transparent);
             background-color: #020617;
-            color: #f8fafc; /* Crisp white-blue for general text */
+            color: #f8fafc;
         }
 
         .glass {
-            background: rgba(15, 23, 42, 0.6); /* Darker glass for better text contrast */
+            background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        /* Calendar Grid Overrides */
-        .vanilla-calendar {
-            background: transparent !important;
-            border: none !important;
-            width: 100% !important;
-        }
-        .vanilla-calendar-grid { gap: 8px; }
-        
-        /* Day Buttons */
-        .vanilla-calendar-day__btn {
-            color: #ffffff !important; /* Pure white for dates */
-            background: rgba(255, 255, 255, 0.08) !important;
-            border-radius: 12px !important;
-            aspect-ratio: 1/1;
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .vanilla-calendar-day__btn:hover {
-            background: #3b82f6 !important;
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        .vanilla-calendar { background: transparent !important; border: none !important; width: 100% !important; }
+        .vanilla-calendar-day__btn { color: #ffffff !important; border-radius: 12px !important; }
+        .vanilla-calendar-day__btn_active { background: #ffffff !important; color: #1e3a8a !important; }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
         }
 
-        .vanilla-calendar-day__btn_active {
-            background: #ffffff !important;
-            color: #1e3a8a !important; /* Contrast navy for selected date */
-            box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
-        }
-
-        /* Header / Weekday Colors */
-        .vanilla-calendar-month, .vanilla-calendar-year {
-            color: #60a5fa !important;
-            font-weight: 800 !important;
-            text-transform: uppercase;
-        }
-        .vanilla-calendar-week__day {
-            color: #94a3b8 !important; /* Muted slate for weekdays */
-            font-weight: 700;
-        }
-
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
     </style>
@@ -78,38 +41,45 @@
     <div class="max-w-6xl mx-auto">
         <header class="mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="text-center md:text-left">
-                <h1 class="text-5xl font-black tracking-tighter text-white drop-shadow-2xl">
-                    Attendance <span class="text-blue-400">Hub</span>
-                </h1>
-                <p class="text-blue-200 font-bold uppercase tracking-[0.4em] mt-2 text-[10px] opacity-80">
-                    Precision Monitoring System
-                </p>
+                <h1 class="text-5xl font-black tracking-tighter text-white drop-shadow-2xl">Attendance <span class="text-blue-400">Hub</span></h1>
+                <p class="text-blue-200 font-bold uppercase tracking-[0.4em] mt-2 text-[10px] opacity-80">Precision Search & Sync Engine</p>
             </div>
-            <a href="index.html" class="glass px-10 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-white hover:bg-blue-600 transition-all border border-white/20 active:scale-95 shadow-xl">
-                ← Open Scanner
-            </a>
+            <div class="flex items-center gap-4">
+                <div id="sync-status" class="text-[10px] font-black uppercase tracking-widest text-blue-400 animate-pulse">Live Sync Active</div>
+                <a href="index.html" class="glass px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-white hover:bg-blue-600 transition-all shadow-xl">← Scanner</a>
+            </div>
         </header>
 
+        <div class="glass rounded-[2.5rem] p-6 mb-8 border border-white/20 shadow-2xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="relative flex items-center bg-white/5 rounded-2xl px-6 border border-white/10 focus-within:border-blue-400 transition-all">
+                    <svg class="w-5 h-5 text-blue-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <input type="text" id="global-search" oninput="applyFilters()" placeholder="Search Name or ID..." class="w-full bg-transparent py-4 text-white font-bold focus:outline-none">
+                </div>
+                <div class="relative flex items-center bg-white/5 rounded-2xl px-6 border border-white/10 focus-within:border-blue-400 transition-all">
+                    <svg class="w-5 h-5 text-blue-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <input type="date" id="date-search" oninput="handleDateInput(this.value)" class="w-full bg-transparent py-4 text-white font-bold focus:outline-none">
+                </div>
+            </div>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div class="lg:col-span-5">
+            <div class="lg:col-span-4">
                 <div class="glass rounded-[3rem] p-8 shadow-2xl border border-white/20">
-                    <h2 class="text-xs font-black text-blue-400 uppercase tracking-[0.3em] mb-6">Select Date</h2>
+                    <h2 class="text-xs font-black text-blue-400 uppercase tracking-[0.3em] mb-6">Calendar View</h2>
                     <div id="calendar"></div>
+                    <button onclick="clearDateFilter()" class="w-full mt-6 py-3 rounded-xl bg-white/5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white hover:bg-white/10 transition">Reset Date Filter</button>
                 </div>
             </div>
 
-            <div class="lg:col-span-7">
+            <div class="lg:col-span-8">
                 <div class="glass rounded-[3rem] overflow-hidden shadow-2xl flex flex-col h-[600px] border border-white/20">
                     <div class="p-8 border-b border-white/10 flex justify-between items-center bg-black/20">
                         <div>
-                            <h2 id="display-date" class="text-3xl font-black text-white">Loading...</h2>
+                            <h2 id="display-date" class="text-3xl font-black text-white">All Records</h2>
                             <p id="record-count" class="text-xs text-blue-300 font-bold uppercase mt-2 tracking-widest">0 Records Found</p>
                         </div>
-                        <button onclick="fetchData()" class="w-14 h-14 glass flex items-center justify-center rounded-2xl hover:bg-blue-500 transition-all group active:rotate-180 duration-700">
-                            <svg class="w-7 h-7 text-white group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
+                        <div id="last-sync" class="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">Syncing...</div>
                     </div>
 
                     <div class="flex-grow overflow-y-auto p-8">
@@ -122,11 +92,7 @@
                                 </tr>
                             </thead>
                             <tbody id="attendance-body">
-                                <tr>
-                                    <td colspan="3" class="py-20 text-center text-slate-400 font-medium italic">
-                                        Initializing Cloud Connection...
-                                    </td>
-                                </tr>
+                                <tr><td colspan="3" class="py-20 text-center text-slate-400 italic">Initializing Cloud Connection...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -138,44 +104,74 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1ZB3iMCv80jB4jkBsFz13KXvX9Ilv6VC-5gDlb4vZUcYiVdsodLqLNg_hSs6BsPQk/exec"; 
         let allData = [];
+        let selectedDate = null;
+        let calendarInstance;
 
         document.addEventListener('DOMContentLoaded', () => {
-            const calendar = new VanillaCalendar('#calendar', {
+            calendarInstance = new VanillaCalendar('#calendar', {
                 type: 'default',
                 settings: {
                     selection: { day: 'single' },
-                    selected: { dates: [new Date().toISOString().split('T')[0]] },
+                    selected: { dates: [] },
                 },
                 actions: {
                     clickDay(event, dates) {
-                        if (dates[0]) filterDataByDate(dates[0]);
+                        selectedDate = dates[0] || null;
+                        document.getElementById('date-search').value = selectedDate;
+                        applyFilters();
                     },
                 },
             });
-            calendar.init();
+            calendarInstance.init();
+            
             fetchData();
+            setInterval(fetchData, 5000); // 5-second auto-sync
         });
 
         async function fetchData() {
-            const body = document.getElementById('attendance-body');
-            body.innerHTML = '<tr><td colspan="3" class="py-24 text-center"><div class="flex flex-col items-center"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400 mb-4"></div><span class="text-blue-400 font-black tracking-widest uppercase text-xs">Syncing Data...</span></div></td></tr>';
-            
             try {
                 const response = await fetch(SCRIPT_URL + "?action=read");
-                allData = await response.json();
-                const today = new Date().toISOString().split('T')[0];
-                filterDataByDate(today);
-            } catch (e) {
-                body.innerHTML = '<tr><td colspan="3" class="py-24 text-center text-red-400 font-black uppercase text-xs tracking-widest">Connection Interrupted</td></tr>';
-            }
+                const newData = await response.json();
+                if (JSON.stringify(newData) !== JSON.stringify(allData)) {
+                    allData = newData;
+                    applyFilters();
+                }
+                document.getElementById('last-sync').innerText = `Last sync: ${new Date().toLocaleTimeString()}`;
+            } catch (e) { console.error("Sync Error"); }
         }
 
-        function filterDataByDate(selectedDate) {
-            document.getElementById('display-date').innerText = new Date(selectedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        function handleDateInput(val) {
+            selectedDate = val || null;
+            // Sync calendar visual with input
+            if (selectedDate) {
+                calendarInstance.settings.selected.dates = [selectedDate];
+                calendarInstance.update();
+            }
+            applyFilters();
+        }
+
+        function clearDateFilter() {
+            selectedDate = null;
+            document.getElementById('date-search').value = '';
+            calendarInstance.settings.selected.dates = [];
+            calendarInstance.update();
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const searchQuery = document.getElementById('global-search').value.toLowerCase();
+            const dateDisplay = document.getElementById('display-date');
             
+            dateDisplay.innerText = selectedDate 
+                ? new Date(selectedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                : "All Records";
+
             const filtered = allData.filter(row => {
                 const rowDate = new Date(row.timestamp).toISOString().split('T')[0];
-                return rowDate === selectedDate;
+                const matchesDate = !selectedDate || rowDate === selectedDate;
+                const matchesSearch = row.id.toLowerCase().includes(searchQuery) || 
+                                     row.info.toLowerCase().includes(searchQuery);
+                return matchesDate && matchesSearch;
             });
 
             renderTable(filtered);
@@ -186,7 +182,7 @@
             document.getElementById('record-count').innerText = `${data.length} Total Records`;
 
             if (data.length === 0) {
-                body.innerHTML = '<tr><td colspan="3" class="py-24 text-center text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em]">No Logs for this Date</td></tr>';
+                body.innerHTML = '<tr><td colspan="3" class="py-24 text-center text-slate-500 font-bold uppercase text-[10px] tracking-[0.2em]">No Matches Found</td></tr>';
                 return;
             }
 
@@ -194,11 +190,12 @@
                 <tr class="group border-b border-white/5 hover:bg-white/5 transition-all">
                     <td class="py-6 px-2 font-mono text-blue-400 font-bold text-xs">
                         ${new Date(row.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        <div class="text-[9px] text-slate-500">${new Date(row.timestamp).toLocaleDateString()}</div>
                     </td>
                     <td class="py-6 px-2">
                         <div class="font-black text-white group-hover:text-blue-400 transition-colors uppercase tracking-tight">${row.id}</div>
                     </td>
-                    <td class="py-6 px-2 text-right md:text-left">
+                    <td class="py-6 px-2">
                         <span class="bg-blue-500/20 text-blue-300 text-[10px] px-4 py-2 rounded-xl border border-blue-400/30 font-black tracking-widest uppercase shadow-lg">
                             ${row.info}
                         </span>

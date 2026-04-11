@@ -8,112 +8,124 @@
     <link href="https://cdn.jsdelivr.net/npm/@vanilla-calendar/pro/build/vanilla-calendar.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@vanilla-calendar/pro/build/vanilla-calendar.min.js" defer></script>
     <style>
-        /* Matching index.html sophisticated glassmorphism */
         body {
-            background: radial-gradient(at top left, #6366f1, transparent),
-                        radial-gradient(at bottom right, #3b82f6, transparent),
-                        radial-gradient(at bottom left, #ec4899, transparent);
-            background-color: #0f172a;
-            color: white;
+            background: radial-gradient(at top left, #4f46e5, transparent),
+                        radial-gradient(at bottom right, #2563eb, transparent),
+                        radial-gradient(at bottom left, #db2777, transparent);
+            background-color: #020617;
+            color: #f8fafc; /* Crisp white-blue for general text */
         }
 
         .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.6); /* Darker glass for better text contrast */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        /* Calendar Styling for "Real Calendar" look */
+        /* Calendar Grid Overrides */
         .vanilla-calendar {
             background: transparent !important;
             border: none !important;
             width: 100% !important;
         }
-        .vanilla-calendar-grid {
-            gap: 5px;
-        }
+        .vanilla-calendar-grid { gap: 8px; }
+        
+        /* Day Buttons */
         .vanilla-calendar-day__btn {
-            color: rgba(255,255,255,0.8) !important;
-            background: rgba(255,255,255,0.03) !important;
-            border-radius: 8px !important;
+            color: #ffffff !important; /* Pure white for dates */
+            background: rgba(255, 255, 255, 0.08) !important;
+            border-radius: 12px !important;
             aspect-ratio: 1/1;
             display: flex !important;
             align-items: center;
             justify-content: center;
-            border: 1px solid rgba(255,255,255,0.05) !important;
-            transition: all 0.2s ease;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        
         .vanilla-calendar-day__btn:hover {
-            background: rgba(59, 130, 246, 0.3) !important;
-            transform: translateY(-2px);
-        }
-        .vanilla-calendar-day__btn_active {
             background: #3b82f6 !important;
-            color: white !important;
-            font-weight: bold;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .vanilla-calendar-day__btn_active {
+            background: #ffffff !important;
+            color: #1e3a8a !important; /* Contrast navy for selected date */
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Header / Weekday Colors */
+        .vanilla-calendar-month, .vanilla-calendar-year {
+            color: #60a5fa !important;
+            font-weight: 800 !important;
+            text-transform: uppercase;
         }
         .vanilla-calendar-week__day {
-            color: #60a5fa !important;
-            font-size: 0.7rem;
-            font-weight: 800;
-            text-transform: uppercase;
+            color: #94a3b8 !important; /* Muted slate for weekdays */
+            font-weight: 700;
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
     </style>
 </head>
 <body class="font-sans min-h-screen p-4 md:p-8">
 
-    <div class="max-w-5xl mx-auto">
-        <header class="mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="text-center md:text-left">
-                <h1 class="text-4xl font-black tracking-tighter drop-shadow-lg">Monitoring <span class="text-blue-400">Hub</span></h1>
-                <p class="text-blue-100/60 text-xs font-bold uppercase tracking-[0.3em] mt-1">Real-time Sheet Synchronizer</p>
+                <h1 class="text-5xl font-black tracking-tighter text-white drop-shadow-2xl">
+                    Attendance <span class="text-blue-400">Hub</span>
+                </h1>
+                <p class="text-blue-200 font-bold uppercase tracking-[0.4em] mt-2 text-[10px] opacity-80">
+                    Precision Monitoring System
+                </p>
             </div>
-            <a href="index.html" class="glass px-8 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-white/10 transition-all border border-white/20 active:scale-95">
-                Open Scanner
+            <a href="index.html" class="glass px-10 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-white hover:bg-blue-600 transition-all border border-white/20 active:scale-95 shadow-xl">
+                ← Open Scanner
             </a>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div class="lg:col-span-5">
-                <div class="glass rounded-[2.5rem] p-6 shadow-2xl border border-white/20">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-sm font-bold text-blue-400 uppercase tracking-[0.2em]">Select Attendance Date</h2>
-                    </div>
+                <div class="glass rounded-[3rem] p-8 shadow-2xl border border-white/20">
+                    <h2 class="text-xs font-black text-blue-400 uppercase tracking-[0.3em] mb-6">Select Date</h2>
                     <div id="calendar"></div>
                 </div>
             </div>
 
             <div class="lg:col-span-7">
-                <div class="glass rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[550px] border border-white/20">
-                    <div class="p-8 border-b border-white/10 flex justify-between items-center bg-white/5">
+                <div class="glass rounded-[3rem] overflow-hidden shadow-2xl flex flex-col h-[600px] border border-white/20">
+                    <div class="p-8 border-b border-white/10 flex justify-between items-center bg-black/20">
                         <div>
-                            <h2 id="display-date" class="text-2xl font-bold text-white">Today</h2>
-                            <p id="record-count" class="text-xs text-blue-200/50 font-bold uppercase mt-1 tracking-widest">0 records found</p>
+                            <h2 id="display-date" class="text-3xl font-black text-white">Loading...</h2>
+                            <p id="record-count" class="text-xs text-blue-300 font-bold uppercase mt-2 tracking-widest">0 Records Found</p>
                         </div>
-                        <button onclick="fetchData()" class="w-12 h-12 glass flex items-center justify-center rounded-xl hover:bg-white/10 transition-all active:rotate-180 duration-500">
-                            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <button onclick="fetchData()" class="w-14 h-14 glass flex items-center justify-center rounded-2xl hover:bg-blue-500 transition-all group active:rotate-180 duration-700">
+                            <svg class="w-7 h-7 text-white group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
                         </button>
                     </div>
 
-                    <div class="flex-grow overflow-y-auto p-6">
+                    <div class="flex-grow overflow-y-auto p-8">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="text-blue-400/50 text-[10px] uppercase tracking-[0.2em] border-b border-white/10">
-                                    <th class="pb-4 px-2">Time</th>
-                                    <th class="pb-4 px-2">Identification</th>
-                                    <th class="pb-4 px-2">Status</th>
+                                <tr class="text-blue-300 text-[11px] font-black uppercase tracking-[0.2em] border-b border-white/10">
+                                    <th class="pb-5 px-2">Time</th>
+                                    <th class="pb-5 px-2">Identification</th>
+                                    <th class="pb-5 px-2">Status</th>
                                 </tr>
                             </thead>
                             <tbody id="attendance-body">
                                 <tr>
-                                    <td colspan="3" class="py-20 text-center text-white/40 italic text-sm">Select a date from the calendar to view logs</td>
+                                    <td colspan="3" class="py-20 text-center text-slate-400 font-medium italic">
+                                        Initializing Cloud Connection...
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -136,7 +148,7 @@
                 },
                 actions: {
                     clickDay(event, dates) {
-                        filterDataByDate(dates[0]);
+                        if (dates[0]) filterDataByDate(dates[0]);
                     },
                 },
             });
@@ -146,7 +158,7 @@
 
         async function fetchData() {
             const body = document.getElementById('attendance-body');
-            body.innerHTML = '<tr><td colspan="3" class="py-20 text-center"><span class="animate-pulse text-blue-400 font-bold tracking-widest uppercase text-xs text-center block">Accessing Cloud Database...</span></td></tr>';
+            body.innerHTML = '<tr><td colspan="3" class="py-24 text-center"><div class="flex flex-col items-center"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400 mb-4"></div><span class="text-blue-400 font-black tracking-widest uppercase text-xs">Syncing Data...</span></div></td></tr>';
             
             try {
                 const response = await fetch(SCRIPT_URL + "?action=read");
@@ -154,7 +166,7 @@
                 const today = new Date().toISOString().split('T')[0];
                 filterDataByDate(today);
             } catch (e) {
-                body.innerHTML = '<tr><td colspan="3" class="py-20 text-center text-red-400 font-bold">Encrypted Connection Failed</td></tr>';
+                body.innerHTML = '<tr><td colspan="3" class="py-24 text-center text-red-400 font-black uppercase text-xs tracking-widest">Connection Interrupted</td></tr>';
             }
         }
 
@@ -171,21 +183,25 @@
 
         function renderTable(data) {
             const body = document.getElementById('attendance-body');
-            document.getElementById('record-count').innerText = `${data.length} entries found`;
+            document.getElementById('record-count').innerText = `${data.length} Total Records`;
 
             if (data.length === 0) {
-                body.innerHTML = '<tr><td colspan="3" class="py-20 text-center text-white/30 italic text-sm">No attendance logs found for this date</td></tr>';
+                body.innerHTML = '<tr><td colspan="3" class="py-24 text-center text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em]">No Logs for this Date</td></tr>';
                 return;
             }
 
             body.innerHTML = data.map(row => `
                 <tr class="group border-b border-white/5 hover:bg-white/5 transition-all">
-                    <td class="py-5 px-2 font-mono text-blue-400 text-xs">${new Date(row.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-                    <td class="py-5 px-2">
-                        <div class="font-bold text-white group-hover:text-blue-400 transition-colors">${row.id}</div>
+                    <td class="py-6 px-2 font-mono text-blue-400 font-bold text-xs">
+                        ${new Date(row.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                     </td>
-                    <td class="py-5 px-2">
-                        <span class="bg-blue-500/10 text-blue-400 text-[10px] px-3 py-1.5 rounded-lg border border-blue-400/20 uppercase font-black tracking-wider">${row.info}</span>
+                    <td class="py-6 px-2">
+                        <div class="font-black text-white group-hover:text-blue-400 transition-colors uppercase tracking-tight">${row.id}</div>
+                    </td>
+                    <td class="py-6 px-2 text-right md:text-left">
+                        <span class="bg-blue-500/20 text-blue-300 text-[10px] px-4 py-2 rounded-xl border border-blue-400/30 font-black tracking-widest uppercase shadow-lg">
+                            ${row.info}
+                        </span>
                     </td>
                 </tr>
             `).join('');

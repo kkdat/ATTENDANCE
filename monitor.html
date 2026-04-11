@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Hub | Real-Time Search Engine</title>
+    <title>Attendance Hub | Search Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@vanilla-calendar/pro/build/vanilla-calendar.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@vanilla-calendar/pro/build/vanilla-calendar.min.js" defer></script>
@@ -18,15 +18,12 @@
         .glass {
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
         .vanilla-calendar { background: transparent !important; border: none !important; width: 100% !important; }
         .vanilla-calendar-day__btn { color: #ffffff !important; border-radius: 12px !important; }
-        .vanilla-calendar-day__btn_active { background: #ffffff !important; color: #1e3a8a !important; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .vanilla-calendar-day__btn_active { background: #ffffff !important; color: #1e3a8a !important; }
         input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
     </style>
 </head>
 <body class="font-sans min-h-screen p-4 md:p-8">
@@ -35,24 +32,18 @@
         <header class="mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="text-center md:text-left">
                 <h1 class="text-5xl font-black tracking-tighter text-white drop-shadow-2xl">Attendance <span class="text-blue-400">Hub</span></h1>
-                <p class="text-blue-200 font-bold uppercase tracking-[0.4em] mt-2 text-[10px] opacity-80 italic">Real-Time Search Engine</p>
+                <p class="text-blue-200 font-bold uppercase tracking-[0.4em] mt-2 text-[10px] opacity-80">Search & Filter Engine</p>
             </div>
-            <div class="flex items-center gap-4">
-                <div class="flex items-center gap-2 bg-blue-500/10 px-4 py-2 rounded-full border border-blue-500/30">
-                    <span id="sync-dot" class="w-2 h-2 bg-blue-400 rounded-full animate-ping"></span>
-                    <div id="sync-status" class="text-[10px] font-black uppercase tracking-widest text-blue-400">3s Live Feed</div>
-                </div>
-                <a href="index.html" class="glass px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-white hover:bg-blue-600 transition-all shadow-xl">← Scanner</a>
-            </div>
+            <a href="index.html" class="glass px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-white hover:bg-blue-600 transition-all">← Back to Scanner</a>
         </header>
 
         <div class="glass rounded-[2.5rem] p-6 mb-8 border border-white/20 shadow-2xl">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="relative flex items-center bg-white/5 rounded-2xl px-6 border border-white/10 focus-within:border-blue-400 transition-all">
+                <div class="relative flex items-center bg-white/5 rounded-2xl px-6 border border-white/10 focus-within:border-blue-400">
                     <svg class="w-5 h-5 text-blue-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <input type="text" id="global-search" oninput="applyFilters()" placeholder="Search Name or ID..." class="w-full bg-transparent py-4 text-white font-bold focus:outline-none">
                 </div>
-                <div class="relative flex items-center bg-white/5 rounded-2xl px-6 border border-white/10 focus-within:border-blue-400 transition-all">
+                <div class="relative flex items-center bg-white/5 rounded-2xl px-6 border border-white/10 focus-within:border-blue-400">
                     <svg class="w-5 h-5 text-blue-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <input type="date" id="date-search" oninput="handleDateInput(this.value)" class="w-full bg-transparent py-4 text-white font-bold focus:outline-none">
                 </div>
@@ -65,6 +56,7 @@
                     <h2 class="text-xs font-black text-blue-400 uppercase tracking-[0.3em] mb-6 text-center">Calendar Filter</h2>
                     <div id="calendar"></div>
                     <button onclick="clearDateFilter()" class="w-full mt-6 py-4 rounded-2xl bg-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-white hover:bg-white/10 transition border border-white/5">Show All History</button>
+                    <button onclick="fetchData()" class="w-full mt-2 py-4 rounded-2xl bg-blue-500/10 text-[10px] font-black uppercase tracking-[0.2em] text-blue-400 hover:bg-blue-500/20 transition border border-blue-500/20">Manual Refresh</button>
                 </div>
             </div>
 
@@ -73,12 +65,11 @@
                     <div class="p-8 border-b border-white/10 flex justify-between items-center bg-black/20">
                         <div>
                             <h2 id="display-date" class="text-3xl font-black text-white">All Records</h2>
-                            <p id="record-count" class="text-xs text-blue-300 font-bold uppercase mt-2 tracking-widest">Loading Records...</p>
+                            <p id="record-count" class="text-xs text-blue-300 font-bold uppercase mt-2 tracking-widest">Loading...</p>
                         </div>
-                        <div id="last-sync" class="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">Initializing...</div>
                     </div>
 
-                    <div class="flex-grow overflow-y-auto p-8" id="scroll-container">
+                    <div class="flex-grow overflow-y-auto p-8">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="text-blue-300 text-[11px] font-black uppercase tracking-[0.2em] border-b border-white/10">
@@ -88,7 +79,7 @@
                                 </tr>
                             </thead>
                             <tbody id="attendance-body">
-                                <tr><td colspan="3" class="py-20 text-center text-slate-400 italic">Connecting to Google Sheets...</td></tr>
+                                <tr><td colspan="3" class="py-20 text-center text-slate-400 italic">Fetch data to see records...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -98,8 +89,7 @@
     </div>
 
     <script>
-        // Ensure this URL is from your LATEST "Anyone" deployment
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzipJlZ5KIk2JOuTvegVGH6pbO0XGgmmXn_4zMb7lXdy-hYa00ADSHdIvW37O8lnGoG/exec"; 
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx070GvnvssloSbW0cvD72SXT13pg84qLONHVFL9eQG5q2nmbvj_awOanMfGIuheqKG/exec"; 
         
         let allData = [];
         let selectedDate = null;
@@ -110,7 +100,6 @@
                 type: 'default',
                 settings: {
                     selection: { day: 'single' },
-                    selected: { dates: [] },
                 },
                 actions: {
                     clickDay(event, dates) {
@@ -121,41 +110,19 @@
                 },
             });
             calendarInstance.init();
-            
-            fetchData();
-            // Interval: 3000ms = 3 Seconds
-            setInterval(fetchData, 3000); 
+            fetchData(); // Load data once on start
         });
 
         async function fetchData() {
+            const body = document.getElementById('attendance-body');
+            body.innerHTML = '<tr><td colspan="3" class="py-20 text-center text-blue-400 animate-pulse font-black uppercase tracking-widest">Syncing Database...</td></tr>';
+            
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=read`);
-                if (!response.ok) throw new Error('Network response was not ok');
-                
-                const newData = await response.json();
-                
-                // Debugging: View this in Browser Console (F12)
-                console.log("Raw Data from Sheet:", newData);
-
-                if (newData.length === 0) {
-                    document.getElementById('attendance-body').innerHTML = '<tr><td colspan="3" class="py-24 text-center text-orange-400 font-bold uppercase text-[10px] tracking-widest">Connected. No data found in Row 2 onwards.</td></tr>';
-                    document.getElementById('record-count').innerText = "0 Records Found";
-                    return;
-                }
-
-                // Only update DOM if the data has actually changed (prevents flicker)
-                if (JSON.stringify(newData) !== JSON.stringify(allData)) {
-                    allData = newData;
-                    applyFilters();
-                }
-                
-                document.getElementById('last-sync').innerText = `Live: ${new Date().toLocaleTimeString()}`;
-                document.getElementById('sync-dot').classList.replace('bg-red-500', 'bg-blue-400');
+                allData = await response.json();
+                applyFilters();
             } catch (e) { 
-                console.error("Sync Error:", e);
-                document.getElementById('last-sync').innerText = "OFFLINE / URL ERROR";
-                document.getElementById('sync-dot').classList.replace('bg-blue-400', 'bg-red-500');
-                document.getElementById('sync-dot').classList.add('bg-red-500');
+                body.innerHTML = '<tr><td colspan="3" class="py-20 text-center text-red-500 font-bold uppercase">Connection Error</td></tr>';
             }
         }
 
@@ -185,9 +152,7 @@
                 : "All Records";
 
             const filtered = allData.filter(row => {
-                const timestampDate = new Date(row.timestamp);
-                const rowDateString = timestampDate.toISOString().split('T')[0];
-                
+                const rowDateString = new Date(row.timestamp).toISOString().split('T')[0];
                 const matchesDate = !selectedDate || rowDateString === selectedDate;
                 const matchesSearch = row.id.toString().toLowerCase().includes(searchQuery) || 
                                      row.info.toString().toLowerCase().includes(searchQuery);
@@ -202,28 +167,24 @@
             document.getElementById('record-count').innerText = `${data.length} TOTAL LOGS`;
 
             if (data.length === 0) {
-                body.innerHTML = '<tr><td colspan="3" class="py-24 text-center text-slate-500 font-bold uppercase text-[10px] tracking-[0.2em]">Zero Records Match Filters</td></tr>';
+                body.innerHTML = '<tr><td colspan="3" class="py-24 text-center text-slate-500 font-bold uppercase text-[10px] tracking-[0.2em]">No Matches Found</td></tr>';
                 return;
             }
 
-            body.innerHTML = data.map(row => {
-                const dateObj = new Date(row.timestamp);
-                return `
+            body.innerHTML = data.map(row => `
                 <tr class="group border-b border-white/5 hover:bg-white/5 transition-all">
                     <td class="py-6 px-2 font-mono text-blue-400 font-bold text-xs">
-                        ${dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}
-                        <div class="text-[9px] text-slate-500 font-bold">${dateObj.toLocaleDateString()}</div>
+                        ${new Date(row.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        <div class="text-[9px] text-slate-500 font-bold">${new Date(row.timestamp).toLocaleDateString()}</div>
                     </td>
+                    <td class="py-6 px-2 text-white font-black uppercase tracking-tight">${row.id}</td>
                     <td class="py-6 px-2">
-                        <div class="font-black text-white group-hover:text-blue-400 transition-colors uppercase tracking-tight">${row.id}</div>
-                    </td>
-                    <td class="py-6 px-2">
-                        <span class="bg-blue-500/20 text-blue-300 text-[10px] px-4 py-2 rounded-xl border border-blue-400/30 font-black tracking-widest uppercase">
+                        <span class="bg-blue-500/20 text-blue-300 text-[10px] px-4 py-2 rounded-xl border border-blue-400/30 font-black uppercase">
                             ${row.info}
                         </span>
                     </td>
                 </tr>
-            `}).join('');
+            `).join('');
         }
     </script>
 </body>

@@ -3,203 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Attendance Pro | Advanced</title>
+    <title>Attendance Pro v2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
-        body {
-            background: radial-gradient(at top left, #6366f1, transparent),
-                        radial-gradient(at bottom right, #3b82f6, transparent),
-                        radial-gradient(at bottom left, #ec4899, transparent);
-            background-color: #0f172a;
-        }
-        .glass {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); opacity: 0.5; }
-            50% { transform: translateY(200px); opacity: 1; }
-        }
-        #scan-line { animation: bounce 2.5s infinite ease-in-out; }
-        
-        /* Custom styling for dropdowns */
-        select option { background-color: #1e293b; color: white; }
+        body { background-color: #0f172a; background: radial-gradient(at top left, #6366f1, transparent), radial-gradient(at bottom right, #3b82f6, transparent); min-height: 100vh; color: white; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        @keyframes scan { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(240px); } }
+        #scan-line { animation: scan 2s infinite ease-in-out; }
     </style>
 </head>
-<body class="font-sans min-h-screen flex items-center justify-center p-4">
+<body class="flex flex-col items-center p-6">
 
-    <div class="max-w-md w-full mx-auto">
-        <header class="py-4 text-center">
-            <h1 class="text-4xl font-black text-white tracking-tighter">Attendance <span class="text-blue-400">Pro</span></h1>
-            <p class="text-blue-100/70 text-xs font-medium uppercase tracking-widest mt-1">Registry Control Panel</p>
-        </header>
+    <header class="mb-8 text-center">
+        <h1 class="text-3xl font-black tracking-tighter">ATTENDANCE <span class="text-blue-400">PRO</span></h1>
+        <p class="text-[10px] tracking-[0.3em] text-blue-300/60 uppercase">Registry Management System</p>
+    </header>
 
-        <div id="config-card" class="glass rounded-[2rem] p-6 mb-6 shadow-xl">
-            <h2 class="text-white font-bold mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                Session Settings
-            </h2>
-            
-            <div class="space-y-4">
-                <div class="flex p-1 bg-black/20 rounded-xl">
-                    <button onclick="setStatus('Time In')" id="btn-in" class="flex-1 py-2 rounded-lg text-sm font-bold transition-all bg-blue-600 text-white">TIME IN</button>
-                    <button onclick="setStatus('Time Out')" id="btn-out" class="flex-1 py-2 rounded-lg text-sm font-bold transition-all text-white/50">TIME OUT</button>
-                </div>
-
-                <div>
-                    <label class="text-[10px] text-blue-300 font-bold uppercase ml-2">Grade & Section</label>
-                    <select id="gradeSection" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all">
-                        <option value="G11-Alpha">Grade 11 - Alpha</option>
-                        <option value="G11-Beta">Grade 11 - Beta</option>
-                        <option value="G12-Sigma">Grade 12 - Sigma</option>
-                        <option value="G12-Delta">Grade 12 - Delta</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="text-[10px] text-blue-300 font-bold uppercase ml-2">Subject</label>
-                    <select id="subject" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all">
-                        <option value="Mathematics">Mathematics</option>
-                        <option value="Science">Science</option>
-                        <option value="ICT / Programming">ICT / Programming</option>
-                        <option value="Physical Education">Physical Education</option>
-                    </select>
-                </div>
-            </div>
+    <div class="glass w-full max-w-md rounded-3xl p-6 mb-6">
+        <div class="grid grid-cols-2 gap-2 mb-4 bg-black/20 p-1 rounded-xl">
+            <button onclick="setStatus('Time In')" id="btn-in" class="py-2 rounded-lg text-xs font-bold bg-blue-600">TIME IN</button>
+            <button onclick="setStatus('Time Out')" id="btn-out" class="py-2 rounded-lg text-xs font-bold text-white/40">TIME OUT</button>
         </div>
 
-        <div id="setup-container" class="text-center">
-            <button onclick="startCamera()" class="glass w-full py-5 rounded-[2rem] text-white font-bold text-lg shadow-xl hover:bg-white/20 transition-all active:scale-95 border border-white/30">
-                Start Secure Scanner
-            </button>
-        </div>
-
-        <div id="scanner-container" class="hidden relative glass rounded-[2.5rem] overflow-hidden shadow-2xl p-3">
-            <div class="relative rounded-[2rem] overflow-hidden aspect-square bg-black">
-                <video id="video" class="w-full h-full object-cover" playsinline></video>
-                <canvas id="canvas" class="hidden"></canvas>
-                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div class="w-64 h-64 border border-white/40 rounded-3xl"></div>
-                    <div id="scan-line" class="absolute w-64 h-1 bg-gradient-to-r from-transparent via-blue-400 to-transparent shadow-[0_0_20px_#60a5fa] top-1/4"></div>
-                </div>
+        <div class="space-y-4">
+            <div>
+                <label class="text-[10px] font-bold text-blue-400 uppercase ml-1">Grade & Section</label>
+                <select id="section" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm">
+                    <option>Grade 11 - Emerald</option>
+                    <option>Grade 11 - Diamond</option>
+                    <option>Grade 12 - Ruby</option>
+                </select>
             </div>
-            <div id="loading-msg" class="py-4 text-center text-white/60 font-medium text-[10px] tracking-widest uppercase italic">
-                Awaiting student QR...
+            <div>
+                <label class="text-[10px] font-bold text-blue-400 uppercase ml-1">Current Subject</label>
+                <select id="subject" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm">
+                    <option>Practical Research</option>
+                    <option>General Mathematics</option>
+                    <option>ICT Specialization</option>
+                </select>
             </div>
         </div>
+    </div>
 
-        <div id="modal" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-6 z-50">
-            <div class="glass text-white rounded-[2.5rem] w-full max-w-sm p-8 shadow-2xl border border-white/30">
-                <h3 class="text-2xl font-bold text-center mb-6">Confirm Record</h3>
-                
-                <div class="space-y-3 mb-8">
-                    <div class="bg-white/5 p-4 rounded-2xl border border-white/10">
-                        <p class="text-[10px] font-bold text-blue-400 uppercase">Student Identifier</p>
-                        <div id="scannedInfo" class="text-lg font-mono mt-1">--</div>
-                    </div>
-                    
-                    <div id="summary-details" class="text-xs text-white/60 space-y-1 px-2">
-                        </div>
-                </div>
+    <div id="setup-view" class="w-full max-w-md">
+        <button onclick="initCamera()" class="w-full py-5 bg-white text-slate-900 font-bold rounded-2xl shadow-xl active:scale-95 transition-all">
+            Open Scanner
+        </button>
+    </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <button onclick="closeModal()" class="py-4 text-white/70 font-bold hover:text-white">Retry</button>
-                    <button onclick="submitToSheet()" id="submitBtn" class="py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-lg transition-all">Confirm</button>
-                </div>
+    <div id="scanner-view" class="hidden w-full max-w-md relative glass p-2 rounded-[2rem]">
+        <div class="relative rounded-[1.5rem] overflow-hidden aspect-square bg-black">
+            <video id="video" class="w-full h-full object-cover"></video>
+            <canvas id="canvas" class="hidden"></canvas>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-64 h-64 border border-white/20 rounded-2xl"></div>
+                <div id="scan-line" class="absolute w-64 h-1 bg-blue-400 shadow-[0_0_15px_#60a5fa]"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+        <div class="glass w-full max-w-sm rounded-[2.5rem] p-8 border border-white/20">
+            <h2 class="text-xl font-bold text-center mb-6">Verify Scan</h2>
+            <div class="bg-white/5 border border-white/10 p-4 rounded-2xl mb-6">
+                <p class="text-[10px] text-blue-400 font-bold uppercase">Scanned Data</p>
+                <div id="qr-result" class="text-lg font-mono mt-1 truncate">--</div>
+            </div>
+            <div id="modal-details" class="text-xs text-white/50 space-y-1 mb-8"></div>
+            <div class="flex gap-4">
+                <button onclick="closeModal()" class="flex-1 py-4 font-bold text-white/60">Cancel</button>
+                <button id="confirm-btn" onclick="sendData()" class="flex-1 py-4 bg-blue-600 rounded-2xl font-bold">Confirm</button>
             </div>
         </div>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyL6y1Br459j8U1lUnDEua9Gs0-20rQFfbzQY6QQALwoc7aFsYIFXN_Utc3C2oPowpa/exec"; 
-        const video = document.getElementById("video");
-        const canvasElement = document.getElementById("canvas");
-        const canvas = canvasElement.getContext("2d");
-        const modal = document.getElementById("modal");
-        const scannedInfoText = document.getElementById("scannedInfo");
-        
-        let scanning = false;
-        let lastResult = null;
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGS_QWW5aYXiD-7_MuBYsu9SX8qehvVDcPeXAgZDQgQjcTiLkqqQI1mHQRESv5dkU/exec"; 
         let currentStatus = "Time In";
+        let scanning = false;
+        let qrData = null;
 
-        function setStatus(status) {
-            currentStatus = status;
-            const btnIn = document.getElementById('btn-in');
-            const btnOut = document.getElementById('btn-out');
-            
-            if(status === 'Time In') {
-                btnIn.className = "flex-1 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white";
-                btnOut.className = "flex-1 py-2 rounded-lg text-sm font-bold text-white/50";
-            } else {
-                btnOut.className = "flex-1 py-2 rounded-lg text-sm font-bold bg-pink-600 text-white";
-                btnIn.className = "flex-1 py-2 rounded-lg text-sm font-bold text-white/50";
-            }
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas').getContext('2d');
+
+        function setStatus(s) {
+            currentStatus = s;
+            document.getElementById('btn-in').className = s === 'Time In' ? 'py-2 rounded-lg text-xs font-bold bg-blue-600' : 'py-2 rounded-lg text-xs font-bold text-white/40';
+            document.getElementById('btn-out').className = s === 'Time Out' ? 'py-2 rounded-lg text-xs font-bold bg-pink-600' : 'py-2 rounded-lg text-xs font-bold text-white/40';
         }
 
-        function startCamera() {
-            document.getElementById("setup-container").classList.add("hidden");
-            document.getElementById("scanner-container").classList.remove("hidden");
-            
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-                .then(stream => {
-                    video.srcObject = stream;
-                    video.setAttribute("playsinline", true);
-                    video.play();
-                    scanning = true;
-                    requestAnimationFrame(tick);
-                });
+        async function initCamera() {
+            document.getElementById('setup-view').classList.add('hidden');
+            document.getElementById('scanner-view').classList.remove('hidden');
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+            video.srcObject = stream;
+            video.play();
+            scanning = true;
+            requestAnimationFrame(tick);
         }
 
         function tick() {
             if (video.readyState === video.HAVE_ENOUGH_DATA && scanning) {
-                canvasElement.height = video.videoHeight;
-                canvasElement.width = video.videoWidth;
-                canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
-                const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-                if (code) onScanSuccess(code.data);
+                const cvs = document.getElementById('canvas');
+                cvs.width = video.videoWidth; cvs.height = video.videoHeight;
+                canvas.drawImage(video, 0, 0, cvs.width, cvs.height);
+                const img = canvas.getImageData(0, 0, cvs.width, cvs.height);
+                const code = jsQR(img.data, img.width, img.height);
+                if (code) {
+                    qrData = code.data;
+                    showModal();
+                }
             }
-            requestAnimationFrame(tick);
+            if (scanning) requestAnimationFrame(tick);
         }
 
-        function onScanSuccess(data) {
+        function showModal() {
             scanning = false;
-            lastResult = data;
-            
-            // Expected QR format "Name | ID"
-            scannedInfoText.innerText = data;
-            
-            const summary = document.getElementById('summary-details');
-            summary.innerHTML = `
-                <p>📍 Section: ${document.getElementById('gradeSection').value}</p>
-                <p>📚 Subject: ${document.getElementById('subject').value}</p>
-                <p>🕒 Action: <span class="font-bold text-white">${currentStatus}</span></p>
+            document.getElementById('qr-result').innerText = qrData;
+            document.getElementById('modal-details').innerHTML = `
+                <p>Section: ${document.getElementById('section').value}</p>
+                <p>Subject: ${document.getElementById('subject').value}</p>
+                <p>Status: ${currentStatus}</p>
             `;
-            
-            modal.classList.remove("hidden");
+            document.getElementById('modal').classList.remove('hidden');
         }
 
         function closeModal() {
-            modal.classList.add("hidden");
-            setTimeout(() => { scanning = true; }, 1000);
+            document.getElementById('modal').classList.add('hidden');
+            qrData = null;
+            setTimeout(() => { scanning = true; tick(); }, 1000);
         }
 
-        async function submitToSheet() {
-            const btn = document.getElementById("submitBtn");
-            btn.disabled = true;
-            btn.innerText = "Syncing...";
+        async function sendData() {
+            const btn = document.getElementById('confirm-btn');
+            btn.disabled = true; btn.innerText = "Syncing...";
 
-            // Split QR data if it contains both Name and ID (e.g., "John Doe, 12345")
-            // Or just send the raw string if it's just the ID
             const payload = {
-                rawData: lastResult,
-                section: document.getElementById('gradeSection').value,
+                timestamp: new Date().toLocaleString(),
+                rawData: qrData,
+                section: document.getElementById('section').value,
                 subject: document.getElementById('subject').value,
-                status: currentStatus,
-                timestamp: new Date().toLocaleString()
+                status: currentStatus
             };
 
             try {
@@ -208,13 +153,12 @@
                     mode: 'no-cors',
                     body: JSON.stringify(payload)
                 });
-                alert("Attendance Logged Successfully!");
+                alert("Success! Record saved to sheet.");
                 closeModal();
             } catch (e) {
-                alert("Error connecting to Sheets.");
+                alert("Sync Error. Check your SCRIPT_URL.");
             } finally {
-                btn.disabled = false;
-                btn.innerText = "Confirm";
+                btn.disabled = false; btn.innerText = "Confirm";
             }
         }
     </script>

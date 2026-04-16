@@ -22,7 +22,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Hide app content until authenticated */
         #app-content { display: none; }
 
         .app-shell {
@@ -100,36 +99,40 @@
 
     <div id="login-overlay" class="fixed inset-0 bg-blue-900 z-[999] flex items-center justify-center p-6">
         <div class="card w-full max-w-sm p-8 space-y-6">
-            <div class="text-center">
-                <h1 class="text-2xl font-black text-blue-900 uppercase tracking-tighter">WCGNHS<span class="text-blue-500"> Login</span></h1>
+            <div class="text-center flex flex-col items-center">
+                <img src="WCGNHS.png" alt="WCGNHS Logo" class="h-16 w-16 mb-4 object-contain">
+                <h1 class="text-2xl font-black text-blue-900 uppercase tracking-tighter">Terminal<span class="text-blue-500"> Login</span></h1>
                 <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Authorized Access Only</p>
             </div>
             
             <div class="space-y-4">
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Username</label>
-                    <input type="text" id="user-input" placeholder="Enter username" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="user-input" placeholder="Username" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Password</label>
                     <input type="password" id="pass-input" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <button onclick="handleLogin()" class="btn-press w-full py-4 bg-blue-600 text-white font-black rounded-2xl shadow-lg hover:bg-blue-700 transition-all uppercase tracking-widest text-sm">Verify Credentials</button>
+                <button onclick="handleLogin()" class="btn-press w-full py-4 bg-blue-600 text-white font-black rounded-2xl shadow-lg hover:bg-blue-700 transition-all uppercase tracking-widest text-sm">Sign In</button>
             </div>
-            <p id="login-error" class="text-center text-red-500 text-[10px] font-bold uppercase hidden">Access Denied: Invalid Username or Password</p>
+            <p id="login-error" class="text-center text-red-500 text-[10px] font-bold uppercase hidden">Invalid Credentials</p>
         </div>
     </div>
 
     <div id="app-content">
         <div class="app-shell px-5 pt-8">
             <header class="flex justify-between items-center mb-8">
-                <div>
-                    <h1 class="text-xl font-black text-blue-900 tracking-tighter uppercase">Attendance<span class="text-blue-500">Pro</span></h1>
-                    <p id="active-user-display" class="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase">User: --</p>
+                <div class="flex items-center gap-3">
+                    <img src="WCGNHS.png" alt="Logo" class="h-10 w-10 object-contain">
+                    <div>
+                        <h1 class="text-xl font-black text-blue-900 tracking-tighter uppercase leading-none">Attendance<span class="text-blue-500">Pro</span></h1>
+                        <p id="active-user-display" class="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase mt-1">User: --</p>
+                    </div>
                 </div>
                 <div class="bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-full border border-emerald-100 flex items-center gap-2">
                     <span class="h-2 w-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                    <span class="text-[10px] font-bold uppercase">Active</span>
+                    <span class="text-[10px] font-bold uppercase">Live</span>
                 </div>
             </header>
 
@@ -173,7 +176,7 @@
                 </div>
 
                 <button onclick="initCamera()" class="btn-press w-full py-5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-3xl shadow-xl shadow-blue-200 transition-all flex items-center justify-center gap-3">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
                     OPEN SCANNER
                 </button>
             </div>
@@ -190,9 +193,6 @@
                         <div class="border-2 border-white/30 rounded-3xl aspect-square w-full max-w-[280px] mx-auto flex items-center justify-center">
                             <p class="text-white/50 text-[10px] font-bold uppercase tracking-widest">Align QR Code</p>
                         </div>
-                        <div class="text-center text-white pb-10">
-                            <p class="text-xs font-bold uppercase tracking-widest opacity-70">Scanning...</p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -201,10 +201,10 @@
         <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-end">
             <div class="bg-white w-full rounded-t-[40px] p-8 shadow-2xl">
                 <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
-                <h2 class="text-2xl font-black text-blue-900 mb-6">Confirm Scan</h2>
+                <h2 class="text-2xl font-black text-blue-900 mb-6 text-center">Scan Successful</h2>
                 <div class="space-y-4 mb-10">
                     <div class="p-5 bg-blue-50 rounded-3xl border border-blue-100">
-                        <span class="text-[10px] font-black text-blue-400 uppercase tracking-wider">Student Data</span>
+                        <span class="text-[10px] font-black text-blue-400 uppercase tracking-wider">ID Data</span>
                         <div id="qr-result" class="text-xl font-black text-blue-900 mt-1 break-all">--</div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
@@ -232,7 +232,7 @@
             </div>
             <div class="nav-item" onclick="openMonitor()">
                 <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                History
+                Logs
             </div>
             <div class="nav-item" onclick="logout()">
                 <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
@@ -242,13 +242,11 @@
     </div>
 
     <script>
-        /** * MULTI-USER CONFIGURATION
-         * Add as many unique accounts as you need below 
-         */
+        // CONFIGURATION
         const AUTHORIZED_USERS = {
-            "ROLLY BERNARDO": "MT1123",
-            "admin_wcgnhs": "wcgnhs2024",
-            "principal_office": "secure789"
+            "teacher1": "1234",
+            "admin": "wcgnhs2026",
+            "registrar": "reg01"
         };
 
         function checkAuth() {
@@ -265,7 +263,6 @@
             const pass = document.getElementById('pass-input').value.trim();
             const errorMsg = document.getElementById('login-error');
 
-            // Check if user exists and password matches
             if (AUTHORIZED_USERS[user] && AUTHORIZED_USERS[user] === pass) {
                 sessionStorage.setItem("terminal_user", user);
                 errorMsg.classList.add('hidden');
@@ -281,7 +278,6 @@
             location.reload();
         }
 
-        // --- APP LOGIC ---
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxonEugZt2Xj0ZQLhvhQDJpOCmZeesN3CH7EE-eQhIEaKC2FtktQfbMws4yyvFMe8BW/exec"; 
         let currentStatus = "Time In";
         let scanning = false;
@@ -315,7 +311,7 @@
                 video.play();
                 scanning = true;
                 requestAnimationFrame(tick);
-            } catch (err) { alert("Camera access denied."); }
+            } catch (err) { alert("Camera Error"); }
         }
 
         function stopCamera() {
@@ -358,14 +354,14 @@
             const btn = document.getElementById('confirm-btn');
             const operator = sessionStorage.getItem("terminal_user");
             btn.disabled = true; 
-            btn.innerText = "SAVING...";
+            btn.innerText = "SENDING...";
 
             const payload = {
                 rawData: qrData,
                 section: document.getElementById('section').value,
                 subject: document.getElementById('subject').value,
                 status: currentStatus,
-                recordedBy: operator // Including who was logged in
+                recordedBy: operator
             };
 
             try {
@@ -376,11 +372,11 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                alert("Attendance recorded successfully!");
+                alert("Attendance recorded.");
                 closeModal();
                 stopCamera();
             } catch (e) {
-                alert("Network error.");
+                alert("Error sending data.");
             } finally {
                 btn.disabled = false; 
                 btn.innerText = "SUBMIT";

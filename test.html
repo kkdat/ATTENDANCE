@@ -22,14 +22,13 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* App-like Container */
         .app-shell {
             max-width: 500px;
             margin: 0 auto;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding-bottom: 90px; /* Space for nav */
+            padding-bottom: 90px; 
         }
 
         .card { 
@@ -39,7 +38,6 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
-        /* Bottom Nav Styling */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -52,7 +50,7 @@
             border-top: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-around;
-            padding: 12px 0 28px 0; /* Extra bottom padding for iPhone notch */
+            padding: 12px 0 28px 0; 
             z-index: 100;
         }
 
@@ -79,6 +77,7 @@
             font-weight: 700;
             color: #94a3b8;
             transition: 0.2s;
+            cursor: pointer;
         }
 
         .nav-item.active { color: #2563eb; }
@@ -91,7 +90,6 @@
             background-size: 1.2rem;
         }
 
-        /* Haptic feedback animation */
         .btn-press:active { transform: scale(0.96); }
     </style>
 </head>
@@ -134,6 +132,8 @@
                         <option>ENGLISH</option>
                         <option>MATHEMATICS</option>
                         <option>SCIENCE</option>
+                        <option>FILIPINO</option>
+                        <option>HISTORY</option>
                         <option>ICT Specialization</option>
                     </select>
                 </div>
@@ -159,7 +159,7 @@
                         <p class="text-white/50 text-[10px] font-bold uppercase tracking-widest">Align QR Code</p>
                     </div>
                     <div class="text-center text-white pb-10">
-                        <p class="text-xs font-bold uppercase tracking-widest opacity-70" id="scan-status-text">Scanning for Student QR...</p>
+                        <p class="text-xs font-bold uppercase tracking-widest opacity-70">Scanning for Student QR...</p>
                     </div>
                 </div>
             </div>
@@ -167,9 +167,8 @@
     </div>
 
     <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-end">
-        <div class="bg-white w-full rounded-t-[40px] p-8 animate-slide-up shadow-2xl">
+        <div class="bg-white w-full rounded-t-[40px] p-8 shadow-2xl">
             <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
-            
             <h2 class="text-2xl font-black text-blue-900 mb-6">Confirm Attendance</h2>
             
             <div class="space-y-4 mb-10">
@@ -198,15 +197,15 @@
     </div>
 
     <nav class="bottom-nav">
-        <div class="nav-item active">
+        <div class="nav-item active" onclick="location.reload()">
             <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
             Home
         </div>
-        <div class="nav-item" onclick="alert('History feature coming soon!')">
+        <div class="nav-item" onclick="openMonitor()">
             <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             Logs
         </div>
-        <div class="nav-item" onclick="alert('Settings feature coming soon!')">
+        <div class="nav-item" onclick="alert('Profile settings available in next update.')">
             <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
             Profile
         </div>
@@ -220,6 +219,11 @@
 
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas').getContext('2d');
+
+        function openMonitor() {
+            // Replace 'monitor.html' with the full URL if hosted on GitHub Pages
+            window.open('monitor.html', '_blank');
+        }
 
         function setStatus(s) {
             currentStatus = s;
@@ -244,7 +248,7 @@
                 scanning = true;
                 requestAnimationFrame(tick);
             } catch (err) {
-                alert("Please enable camera permissions to scan QR codes.");
+                alert("Please enable camera permissions.");
             }
         }
 
@@ -266,7 +270,7 @@
                 const code = jsQR(img.data, img.width, img.height);
                 if (code) {
                     qrData = code.data;
-                    navigator.vibrate(50); // Haptic feedback on scan
+                    navigator.vibrate(50);
                     showModal();
                 }
             }
@@ -293,7 +297,7 @@
             btn.innerText = "WAIT...";
 
             const payload = {
-                timestamp: new Date().toLocaleString(),
+                // Note: Timestamp is handled by Apps Script for perfect GMT+8 reflection
                 rawData: qrData,
                 section: document.getElementById('section').value,
                 subject: document.getElementById('subject').value,
@@ -306,10 +310,11 @@
                     mode: 'no-cors',
                     body: JSON.stringify(payload)
                 });
-                stopCamera();
+                alert("Success! Attendance recorded.");
                 closeModal();
+                stopCamera();
             } catch (e) {
-                alert("Error connecting to server.");
+                alert("Connection error. Check your internet.");
             } finally {
                 btn.disabled = false; 
                 btn.innerText = "SUBMIT";

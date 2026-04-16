@@ -52,7 +52,7 @@
                 <option>Grade 12 - ABM</option>
                 <option>Grade 12 - HUMSS</option>
                 <option>Grade 12 - TVL</option>
-                </select>
+            </select>
         </div>
         <div>
             <label class="block text-[10px] font-bold text-blue-400 uppercase mb-2">Subject</label>
@@ -87,8 +87,7 @@
                         <th class="px-6 py-4 text-center">Status</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody" class="text-sm font-medium text-slate-700">
-                    </tbody>
+                <tbody id="tableBody" class="text-sm font-medium text-slate-700"></tbody>
             </table>
         </div>
         <div id="noData" class="hidden py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">
@@ -100,24 +99,39 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz1CbZkOen-Ceze7MF_sqpI3aMAZD99cnWOq9oCgCUsmGgEOvKx4-6Mx1TsgNfp9iFs/exec";
         let masterData = [];
 
-        // Helper Function to format MM-DD-YYYY
+        /**
+         * IMPROVED: formatTimestamp
+         * Uses Intl.DateTimeFormat to force a specific timezone and clean format.
+         */
         function formatTimestamp(ts) {
             if (!ts || ts === 'N/A') return 'N/A';
-            const date = new Date(ts);
-            if (isNaN(date.getTime())) return ts; // Return as-is if parsing fails
-
-            const mm = String(date.getMonth() + 1).padStart(2, '0');
-            const dd = String(date.getDate()).padStart(2, '0');
-            const yyyy = date.getFullYear();
             
-            // Format time (12-hour format)
-            const time = date.toLocaleString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                hour12: true 
-            });
+            try {
+                const date = new Date(ts);
+                if (isNaN(date.getTime())) return ts;
 
-            return `${mm}-${dd}-${yyyy} | ${time}`;
+                // Configure for Philippines Time (GMT+8) and MM-DD-YYYY format
+                const options = {
+                    timeZone: 'Asia/Manila',
+                    month: '2-digit',
+                    day: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                };
+
+                const formatter = new Intl.DateTimeFormat('en-US', options);
+                const parts = formatter.formatToParts(date);
+                
+                // Extract parts to build our custom string: MM-DD-YYYY | HH:MM AM/PM
+                const map = new Map(parts.map(p => [p.type, p.value]));
+                return `${map.get('month')}-${map.get('day')}-${map.get('year')} | ${map.get('hour')}:${map.get('minute')} ${map.get('dayPeriod')}`;
+                
+            } catch (e) {
+                console.error("Format Error:", e);
+                return ts;
+            }
         }
 
         async function fetchData() {
@@ -181,7 +195,8 @@
             const filtered = masterData.filter(item => {
                 let dateMatch = true;
                 if(dateVal) {
-                    const itemDate = new Date(item.timestamp).toISOString().split('T')[0];
+                    // Normalize date comparison to local date string YYYY-MM-DD
+                    const itemDate = new Date(item.timestamp).toLocaleDateString('en-CA'); // en-CA gives YYYY-MM-DD
                     dateMatch = (itemDate === dateVal);
                 }
 

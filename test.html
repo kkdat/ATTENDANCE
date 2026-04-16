@@ -21,10 +21,10 @@
     <div class="max-w-6xl mx-auto mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <h1 class="text-2xl font-black text-blue-900 uppercase">Faculty<span class="text-blue-600">Monitor</span></h1>
-            <p class="text-blue-500 text-xs font-bold uppercase tracking-widest">WCGNHS Attendance Records</p>
+            <p class="text-blue-500 text-xs font-bold uppercase tracking-widest">Wilbur C. Go NHS Attendance Records</p>
         </div>
         <button onclick="fetchData()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-blue-200 flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
             Refresh Data
         </button>
     </div>
@@ -44,7 +44,7 @@
                 <option>Grade 12 - ABM</option>
                 <option>Grade 12 - HUMSS</option>
                 <option>Grade 12 - TVL</option>
-            </select>
+                </select>
         </div>
         <div>
             <label class="block text-[10px] font-bold text-blue-400 uppercase mb-2">Subject</label>
@@ -71,8 +71,8 @@
                 <thead>
                     <tr>
                         <th class="px-6 py-4">Timestamp</th>
-                        <th class="px-6 py-4">Student Info</th>
-                        <th class="px-6 py-4">Section</th>
+                        <th class="px-6 py-4">Student Information</th>
+                        <th class="px-6 py-4">Grade & Section</th>
                         <th class="px-6 py-4">Subject</th>
                         <th class="px-6 py-4 text-center">Status</th>
                     </tr>
@@ -87,19 +87,23 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx1e68bf0GrLSxhbG5IuquYoppo1DsuEwqAXtkqVbvLDv5OmgJYDPOfwWdgbtA5wmh5/exec";
+        // REPLACE with your actual Google Apps Script URL
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGS_QWW5aYXiD-7_MuBYsu9SX8qehvVDcPeXAgZDQgQjcTiLkqqQI1mHQRESv5dkU/exec";
         let masterData = [];
 
         async function fetchData() {
-            document.getElementById('loadingOverlay').classList.remove('hidden');
+            const loader = document.getElementById('loadingOverlay');
+            loader.classList.remove('hidden');
             try {
                 const response = await fetch(SCRIPT_URL);
+                if (!response.ok) throw new Error('Network response was not ok');
                 masterData = await response.json();
                 renderTable(masterData);
             } catch (e) {
-                alert("Error fetching data. Ensure doGet is deployed.");
+                console.error("Error:", e);
+                alert("Could not load data. Ensure the script is deployed correctly.");
             } finally {
-                document.getElementById('loadingOverlay').classList.add('hidden');
+                loader.classList.add('hidden');
             }
         }
 
@@ -108,7 +112,7 @@
             const noData = document.getElementById('noData');
             tbody.innerHTML = "";
 
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 noData.classList.remove('hidden');
                 return;
             } else {
@@ -116,15 +120,23 @@
             }
 
             data.forEach(item => {
-                const statusClass = item.status === "Time In" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700";
+                // Key mapping based on headers: "Student Information" and "grade & Section"
+                // Apps Script strips spaces/symbols: "studentinformation" and "grade&section"
+                const studentName = item["studentinformation"] || "Unknown";
+                const gradeSection = item["grade&section"] || "N/A";
+                const subjectName = item["subject"] || "N/A";
+                const logStatus = item["status"] || "N/A";
+
+                const statusClass = logStatus === "Time In" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700";
+                
                 const row = `
-                    <tr class="border-t border-slate-50">
-                        <td class="px-6 py-4 text-slate-400 font-mono text-[11px]">${item.timestamp}</td>
-                        <td class="px-6 py-4 font-bold text-blue-900">${item.studentinfo || item.rawdata || 'Unknown'}</td>
-                        <td class="px-6 py-4 text-slate-500">${item.academicsection || item.section || 'N/A'}</td>
-                        <td class="px-6 py-4"><span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-[10px] font-bold">${item.coursesubject || item.subject || 'N/A'}</span></td>
+                    <tr class="border-t border-slate-50 transition-colors">
+                        <td class="px-6 py-4 text-slate-400 font-mono text-[11px]">${item.timestamp || 'N/A'}</td>
+                        <td class="px-6 py-4 font-bold text-blue-900">${studentName}</td>
+                        <td class="px-6 py-4 text-slate-500">${gradeSection}</td>
+                        <td class="px-6 py-4"><span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-[10px] font-bold">${subjectName}</span></td>
                         <td class="px-6 py-4 text-center">
-                            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${statusClass}">${item.logstatus || item.status}</span>
+                            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${statusClass}">${logStatus}</span>
                         </td>
                     </tr>
                 `;
@@ -133,20 +145,20 @@
         }
 
         function applyFilters() {
-            const dateVal = document.getElementById('filterDate').value; // YYYY-MM-DD
+            const dateVal = document.getElementById('filterDate').value;
             const sectionVal = document.getElementById('filterSection').value;
             const subjectVal = document.getElementById('filterSubject').value;
 
             const filtered = masterData.filter(item => {
-                // Handle date matching (Timestamp is usually "M/D/YYYY, H:MM:SS AM/PM")
                 let dateMatch = true;
                 if(dateVal) {
+                    // Adjust date parsing depending on your locale, usually YYYY-MM-DD
                     const itemDate = new Date(item.timestamp).toISOString().split('T')[0];
                     dateMatch = (itemDate === dateVal);
                 }
 
-                const sectionMatch = sectionVal === "" || (item.academicsection || item.section) === sectionVal;
-                const subjectMatch = subjectVal === "" || (item.coursesubject || item.subject) === subjectVal;
+                const sectionMatch = sectionVal === "" || item["grade&section"] === sectionVal;
+                const subjectMatch = subjectVal === "" || item["subject"] === subjectVal;
 
                 return dateMatch && sectionMatch && subjectMatch;
             });
@@ -161,8 +173,8 @@
             renderTable(masterData);
         }
 
-        // Initial Load
-        fetchData();
+        // Automatic load on page open
+        window.onload = fetchData;
     </script>
 </body>
 </html>

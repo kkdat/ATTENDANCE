@@ -212,16 +212,16 @@
     </nav>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGS_QWW5aYXiD-7_MuBYsu9SX8qehvVDcPeXAgZDQgQjcTiLkqqQI1mHQRESv5dkU/exec"; 
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxonEugZt2Xj0ZQLhvhQDJpOCmZeesN3CH7EE-eQhIEaKC2FtktQfbMws4yyvFMe8BW/exec"; 
         let currentStatus = "Time In";
         let scanning = false;
         let qrData = null;
 
         const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas').getContext('2d');
+        const canvasElement = document.getElementById('canvas');
+        const canvas = canvasElement.getContext('2d');
 
         function openMonitor() {
-            // Replace 'monitor.html' with the full URL if hosted on GitHub Pages
             window.open('monitor.html', '_blank');
         }
 
@@ -262,15 +262,14 @@
 
         function tick() {
             if (video.readyState === video.HAVE_ENOUGH_DATA && scanning) {
-                const cvs = document.getElementById('canvas');
-                cvs.width = video.videoWidth; 
-                cvs.height = video.videoHeight;
-                canvas.drawImage(video, 0, 0, cvs.width, cvs.height);
-                const img = canvas.getImageData(0, 0, cvs.width, cvs.height);
+                canvasElement.width = video.videoWidth; 
+                canvasElement.height = video.videoHeight;
+                canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+                const img = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
                 const code = jsQR(img.data, img.width, img.height);
                 if (code) {
                     qrData = code.data;
-                    navigator.vibrate(50);
+                    if (navigator.vibrate) navigator.vibrate(50);
                     showModal();
                 }
             }
@@ -297,7 +296,6 @@
             btn.innerText = "WAIT...";
 
             const payload = {
-                // Note: Timestamp is handled by Apps Script for perfect GMT+8 reflection
                 rawData: qrData,
                 section: document.getElementById('section').value,
                 subject: document.getElementById('subject').value,
@@ -305,16 +303,22 @@
             };
 
             try {
+                // Using a standard fetch logic. Note: 'no-cors' limits our ability to see response body, 
+                // but successfully triggers the script execution.
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
+                
                 alert("Success! Attendance recorded.");
                 closeModal();
                 stopCamera();
             } catch (e) {
-                alert("Connection error. Check your internet.");
+                alert("Connection error. Please try again.");
+                console.error(e);
             } finally {
                 btn.disabled = false; 
                 btn.innerText = "SUBMIT";

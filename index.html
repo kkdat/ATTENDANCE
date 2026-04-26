@@ -16,19 +16,23 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e3a8a; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         #app-content { display: none; }
-        .app-shell { max-width: 500px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 90px; }
+        .app-shell { max-width: 500px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 100px; }
         .card { background: white; border-radius: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         .scanner-container { position: relative; width: 280px; height: 280px; z-index: 20; }
         .scanner-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.6); mask: radial-gradient(circle 140px at center, transparent 100%, black 100%); -webkit-mask: radial-gradient(circle 140px at center, transparent 99%, black 100%); }
         .corner-bracket { position: absolute; width: 30px; height: 30px; border: 4px solid #3b82f6; z-index: 30; }
         .scan-laser { position: absolute; left: 0; width: 100%; height: 3px; background: linear-gradient(to right, transparent, #3b82f6, transparent); box-shadow: 0 0 15px 2px rgba(59, 130, 246, 0.8); animation: scanning 2s infinite ease-in-out; z-index: 25; }
         @keyframes scanning { 0%, 100% { top: 0%; } 50% { top: 100%; } }
-        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; padding: 12px 0 28px 0; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; font-weight: 700; color: #94a3b8; transition: 0.2s; cursor: pointer; }
+        
+        /* Updated Navigation Style */
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; padding: 12px 10px 24px 10px; z-index: 100; box-shadow: 0 -10px 25px -5px rgba(0,0,0,0.05); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex: 1; font-size: 10px; font-weight: 800; color: #94a3b8; transition: all 0.2s ease; cursor: pointer; text-transform: uppercase; letter-spacing: 0.02em; }
         .nav-item.active { color: #2563eb; }
+        .nav-item.logout-color { color: #f43f5e; opacity: 0.7; }
+        .nav-item.logout-color:active { opacity: 1; }
+        .nav-icon { width: 22px; height: 22px; }
+        
         .btn-press:active { transform: scale(0.96); }
-        .loading-dots:after { content: ' .'; animation: dots 1.5s steps(5, end) infinite; }
-        @keyframes dots { 0%, 20% { content: ' .'; } 40% { content: ' ..'; } 60% { content: ' ...'; } 80%, 100% { content: ''; } }
     </style>
 </head>
 <body onload="checkAuth()">
@@ -85,8 +89,8 @@
                     </div>
                 </div>
 
-                <button onclick="initCamera()" class="btn-press w-full py-5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-3xl shadow-xl transition-all flex items-center justify-center gap-3">
-                    OPEN SCANNER
+                <button onclick="initCamera()" class="btn-press w-full py-5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-3xl shadow-xl transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm">
+                    Open Scanner
                 </button>
             </div>
 
@@ -114,26 +118,31 @@
                     <div id="qr-result" class="text-xl font-black text-blue-900 mt-1 break-all">--</div>
                 </div>
                 <div class="flex gap-4 mb-6">
-                    <button onclick="closeModal()" class="flex-1 py-5 bg-slate-100 text-slate-500 font-black rounded-3xl btn-press">RETRY</button>
-                    <button id="confirm-btn" onclick="sendData()" class="flex-2 w-[60%] py-5 bg-blue-600 text-white font-black rounded-3xl shadow-lg uppercase tracking-widest btn-press">Submit</button>
+                    <button onclick="closeModal()" class="flex-1 py-5 bg-slate-100 text-slate-500 font-black rounded-3xl btn-press uppercase text-xs">Retry</button>
+                    <button id="confirm-btn" onclick="sendData()" class="flex-2 w-[60%] py-5 bg-blue-600 text-white font-black rounded-3xl shadow-lg uppercase tracking-widest btn-press text-xs">Submit</button>
                 </div>
             </div>
         </div>
 
         <nav class="bottom-nav">
-            <div class="nav-item active" onclick="location.reload()">Home</div>
-            <div class="nav-item" onclick="logout()">Logout</div>
+            <div class="nav-item active" onclick="location.reload()">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                Home
+            </div>
+            <div class="nav-item" onclick="window.open('YOUR_MONITOR_LINK_HERE', '_blank')">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                Monitor
+            </div>
+            <div class="nav-item logout-color" onclick="logout()">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                Logout
+            </div>
         </nav>
     </div>
 
     <script>
-        // CONFIGURATION
-        const AUTHORIZED_USERS = { 
-            "admin": "wcgnhs2026", 
-            "Rolly T. Bernardo": "RTB2026", 
-            "Grace G. Labso": "GGL2026" 
-        };
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyuGKYJzMhsaDnGKlRj1VPnaySS0VFU58EF4MnXJRwAFtZgewwbaKDtmUwVw4QtfUCp/exec"; // PASTE YOUR URL HERE
+        const AUTHORIZED_USERS = { "admin": "wcgnhs2026", "Rolly T. Bernardo": "RTB2026", "Grace G. Labso": "GGL2026" };
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyuGKYJzMhsaDnGKlRj1VPnaySS0VFU58EF4MnXJRwAFtZgewwbaKDtmUwVw4QtfUCp/exec";
 
         function checkAuth() {
             const loggedUser = sessionStorage.getItem("terminal_user");
@@ -199,7 +208,6 @@
             const btn = document.getElementById('confirm-btn');
             btn.disabled = true;
             btn.innerText = "RECORDING...";
-
             const payload = {
                 studentId: qrData,
                 status: currentStatus,
@@ -207,24 +215,14 @@
                 subject: document.getElementById('subject').value,
                 recordedBy: sessionStorage.getItem("terminal_user")
             };
-
             try {
-                await fetch(WEB_APP_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-                
-                alert("Successfully recorded to the data base!");
-                btn.disabled = false;
-                btn.innerText = "SUBMIT";
-                closeModal();
-                stopCamera();
+                await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+                alert("Successfully recorded!");
+                btn.disabled = false; btn.innerText = "SUBMIT";
+                closeModal(); stopCamera();
             } catch (err) {
-                alert("Recording failed. Check your internet.");
-                btn.disabled = false;
-                btn.innerText = "SUBMIT";
+                alert("Recording failed.");
+                btn.disabled = false; btn.innerText = "SUBMIT";
             }
         }
     </script>

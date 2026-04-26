@@ -29,7 +29,7 @@
                 <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Live Attendance Feed</p>
             </div>
         </div>
-        <button onclick="fetchData()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-lg flex items-center gap-2 active:scale-95">
+        <button onclick="fetchData(true)" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-lg flex items-center gap-2 active:scale-95">
             REFRESH FEED
         </button>
     </div>
@@ -66,7 +66,7 @@
     </div>
 
     <div class="max-w-6xl mx-auto card rounded-3xl p-2 relative min-h-[400px]">
-        <div id="loadingOverlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-3xl">
+        <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-3xl">
             <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 h-10 w-10"></div>
         </div>
 
@@ -90,16 +90,11 @@
     </div>
 
     <script>
-        // Ensure this matches your Web App URL
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyuGKYJzMhsaDnGKlRj1VPnaySS0VFU58EF4MnXJRwAFtZgewwbaKDtmUwVw4QtfUCp/exec";
         let masterData = [];
 
-        /**
-         * Robust key finder to handle variations in Google Sheet JSON output
-         */
         function getValue(obj, possibleKeys) {
             for (let key of possibleKeys) {
-                // Check exact match, lowercase match, and spaceless match
                 let found = Object.keys(obj).find(k => 
                     k.toLowerCase().replace(/[^a-z0-9]/g, '') === key.toLowerCase().replace(/[^a-z0-9]/g, '')
                 );
@@ -112,7 +107,6 @@
             if (!ts || ts === 'N/A') return '---';
             const date = new Date(ts);
             if (isNaN(date.getTime())) return ts;
-            
             return new Intl.DateTimeFormat('en-US', {
                 timeZone: 'Asia/Manila',
                 month: 'short', day: '2-digit', year: 'numeric',
@@ -120,17 +114,21 @@
             }).format(date);
         }
 
-        async function fetchData() {
+        /**
+         * Enhanced fetchData with showLoader parameter
+         */
+        async function fetchData(showLoader = false) {
             const loader = document.getElementById('loadingOverlay');
-            loader.classList.remove('hidden');
+            if (showLoader) loader.classList.remove('hidden');
+            
             try {
                 const response = await fetch(SCRIPT_URL);
                 masterData = await response.json();
-                renderTable(masterData);
+                applyFilters(); // Re-apply current filters to the new data
             } catch (e) {
                 console.error("Fetch Error:", e);
             } finally {
-                loader.classList.add('hidden');
+                if (showLoader) loader.classList.add('hidden');
             }
         }
 
@@ -145,7 +143,6 @@
             }
             noData.classList.add('hidden');
 
-            // Sort data: newest first
             const sortedData = [...data].reverse();
 
             sortedData.forEach(item => {
@@ -185,10 +182,8 @@
                     const itemDate = new Date(getValue(item, ["timestamp"])).toLocaleDateString('en-CA');
                     dateMatch = (itemDate === dateVal);
                 }
-
                 const sectionMatch = sectionVal === "" || getValue(item, ["grade&section"]) === sectionVal;
                 const subjectMatch = subjectVal === "" || getValue(item, ["subject"]) === subjectVal;
-
                 return dateMatch && sectionMatch && subjectMatch;
             });
 
@@ -202,9 +197,16 @@
             renderTable(masterData);
         }
 
-        // Auto-refresh every 30 seconds
-        setInterval(fetchData, 30000);
-        window.onload = fetchData;
+        // --- NEW FEATURES ---
+
+        // 1. Initial load shows the spinner
+        window.onload = () => fetchData(true);
+
+        // 2. Auto-refresh every 10 seconds (Silent - no spinner)
+        setInterval(() => {
+            fetchData(false);
+        }, 10000);
+
     </script>
 </body>
 </html>

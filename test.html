@@ -21,9 +21,7 @@
             overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
         }
-
         #app-content { display: none; }
-
         .app-shell {
             max-width: 500px;
             margin: 0 auto;
@@ -32,21 +30,18 @@
             flex-direction: column;
             padding-bottom: 90px; 
         }
-
         .card { 
             background: white; 
             border-radius: 24px;
             border: 1px solid #e2e8f0;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
-
         .scanner-container {
             position: relative;
             width: 280px;
             height: 280px;
             z-index: 20;
         }
-
         .scanner-overlay {
             position: absolute;
             inset: 0;
@@ -54,7 +49,6 @@
             mask: radial-gradient(circle 140px at center, transparent 100%, black 100%);
             -webkit-mask: radial-gradient(circle 140px at center, transparent 99%, black 100%);
         }
-
         .corner-bracket {
             position: absolute;
             width: 30px;
@@ -62,7 +56,6 @@
             border: 4px solid #3b82f6;
             z-index: 30;
         }
-
         .scan-laser {
             position: absolute;
             left: 0;
@@ -73,12 +66,10 @@
             animation: scanning 2s infinite ease-in-out;
             z-index: 25;
         }
-
         @keyframes scanning {
             0%, 100% { top: 0%; }
             50% { top: 100%; }
         }
-
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -94,7 +85,6 @@
             padding: 12px 0 28px 0; 
             z-index: 100;
         }
-
         .nav-item {
             display: flex;
             flex-direction: column;
@@ -105,7 +95,6 @@
             transition: 0.2s;
             cursor: pointer;
         }
-
         .nav-item.active { color: #2563eb; }
         .btn-press:active { transform: scale(0.96); }
     </style>
@@ -113,13 +102,12 @@
 <body onload="checkAuth()">
 
     <div id="login-overlay" class="fixed inset-0 bg-blue-900 z-[999] flex items-center justify-center p-6">
-        <div class="card w-full max-w-sm p-8 space-y-6">
+        <div class="card w-full max-sm p-8 space-y-6">
             <div class="text-center flex flex-col items-center">
                 <img src="WCGNHS.png" alt="WCGNHS Logo" class="h-16 w-16 mb-4 object-contain">
                 <h1 class="text-2xl font-black text-blue-900 uppercase tracking-tighter">Terminal<span class="text-blue-500"> Login</span></h1>
                 <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Authorized Access Only</p>
             </div>
-            
             <div class="space-y-4">
                 <input type="text" id="user-input" placeholder="Username" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
                 <input type="password" id="pass-input" placeholder="Password" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
@@ -191,25 +179,18 @@
             <div id="scanner-view" class="hidden fixed inset-0 bg-black z-[200] flex flex-col items-center justify-center">
                 <video id="video" class="absolute inset-0 w-full h-full object-cover"></video>
                 <canvas id="canvas" class="hidden"></canvas>
-                
                 <div class="scanner-overlay"></div>
-
                 <button onclick="stopCamera()" class="absolute top-12 right-6 z-[50] bg-white/10 backdrop-blur-xl p-3 rounded-full text-white border border-white/20">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
-
                 <div class="scanner-container">
                     <div class="corner-bracket top-0 left-0 border-r-0 border-b-0 rounded-tl-3xl"></div>
                     <div class="corner-bracket top-0 right-0 border-l-0 border-b-0 rounded-tr-3xl"></div>
                     <div class="corner-bracket bottom-0 left-0 border-r-0 border-t-0 rounded-bl-3xl"></div>
                     <div class="corner-bracket bottom-0 right-0 border-l-0 border-t-0 rounded-br-3xl"></div>
-                    
                     <div class="scan-laser"></div>
                 </div>
-
-                <p class="absolute bottom-24 text-white font-bold text-xs uppercase tracking-widest z-[30] bg-black/40 px-4 py-2 rounded-full backdrop-blur-md">
-                    Center the QR Code inside the frame
-                </p>
+                <p class="absolute bottom-24 text-white font-bold text-xs uppercase tracking-widest z-[30] bg-black/40 px-4 py-2 rounded-full backdrop-blur-md">Center QR Code inside the frame</p>
             </div>
         </div>
 
@@ -243,19 +224,15 @@
     </div>
 
     <script>
-        // 1. CONTACT DATABASE: Map Student QR ID to Parent Phone Number
-        const STUDENT_CONTACTS = {
-            "DARWIN C. AGULLANA|21-040031": "09489249671",
-            "STU-002": "09987654321",
-            "ADD_YOUR_ID_HERE": "PHONE_NUMBER"
-        };
-
+        // CONFIGURATION
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxXzRKEYaeBGYfb2THqnxWM9nV5qb-6EwzKQ8NOOuL2QPsowJdmNB88CJpc7hhwR6e4/exec"; 
         const AUTHORIZED_USERS = { 
             "admin": "wcgnhs2026",
             "Rolly T. Bernardo": "RTB2026",
             "Grace G. Labso": "GGL2026" 
         };
 
+        // AUTHENTICATION LOGIC
         function checkAuth() {
             const loggedUser = sessionStorage.getItem("terminal_user");
             if (loggedUser) {
@@ -278,6 +255,7 @@
 
         function logout() { sessionStorage.removeItem("terminal_user"); location.reload(); }
 
+        // SCANNER & DATA LOGIC
         let currentStatus = "Time In";
         let scanning = false;
         let qrData = null;
@@ -300,7 +278,7 @@
                 video.play();
                 scanning = true;
                 requestAnimationFrame(tick);
-            } catch (err) { alert("Camera Error"); }
+            } catch (err) { alert("Camera Permission Denied or Not Found."); }
         }
 
         function stopCamera() {
@@ -334,27 +312,52 @@
         function closeModal() {
             document.getElementById('modal').classList.add('hidden');
             qrData = null;
-            setTimeout(() => { if(!document.getElementById('scanner-view').classList.contains('hidden')) {scanning = true; tick();} }, 1000);
+            setTimeout(() => { 
+                if(document.getElementById('scanner-view').classList.contains('hidden') === false) {
+                    scanning = true; 
+                    tick(); 
+                }
+            }, 1000);
         }
 
-        // 2. INTEGRATED: Send Notification Logic
         async function sendData() {
-            const subject = document.getElementById('subject').value;
-            const parentNumber = STUDENT_CONTACTS[qrData];
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const btn = document.getElementById('confirm-btn');
+            
+            // Gather Payload
+            const payload = {
+                action: 'write',
+                id: qrData,
+                status: currentStatus,
+                section: document.getElementById('section').value,
+                subject: document.getElementById('subject').value,
+                user: sessionStorage.getItem("terminal_user")
+            };
 
-            if (parentNumber) {
-                // Construct the Message
-                const message = `WCGNHS Attendance: Student ${qrData} has recorded a ${currentStatus.toUpperCase()} for ${subject} at ${time}.`;
-                
-                // Trigger the phone's SMS app
-                window.location.href = `sms:${parentNumber}?body=${encodeURIComponent(message)}`;
-            } else {
-                alert(`Attendance saved for ${qrData}. (No parent number found in database)`);
+            // UI State
+            btn.innerText = "UPLOADING...";
+            btn.disabled = true;
+
+            try {
+                // 'no-cors' is often required when posting to Google Apps Script 
+                // from a different domain/local file to avoid CORS blocks.
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', 
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                alert("Data Recorded Successfully!");
+                closeModal();
+                stopCamera();
+            } catch (error) {
+                console.error('Error:', error);
+                alert("Network Error. Check your internet.");
+            } finally {
+                btn.innerText = "SUBMIT";
+                btn.disabled = false;
             }
-
-            closeModal();
-            stopCamera();
         }
     </script>
 </body>

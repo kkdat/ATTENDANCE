@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Faculty Monitor | WCGNHS</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; color: #1e3a8a; }
-        .card { background: white; border: 1px solid #d1e2f3; box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.08); }
-        .table-container { overflow-x: auto; border-radius: 1rem; border: 1px solid #d1e2f3; }
-        th { background-color: #f8fafc; color: #64748b; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; }
-        tr:hover { background-color: #f1f5f9; }
-        .loader { border-top-color: #2563eb; animation: spinner 1.5s linear infinite; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e3a8a; }
+        .card { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .table-container { overflow-x: auto; border-radius: 1rem; }
+        th { background-color: #f1f5f9; color: #475569; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.1em; font-weight: 800; }
+        .loader { border-top-color: #2563eb; animation: spinner 1s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -20,118 +19,104 @@
 
     <div class="max-w-6xl mx-auto mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-black text-blue-900 uppercase">Faculty<span class="text-blue-600">Monitor</span></h1>
-            <p class="text-blue-500 text-xs font-bold uppercase tracking-widest">Wilbur C. Go NHS Attendance Records</p>
+            <h1 class="text-3xl font-black text-blue-900 tracking-tighter uppercase">Faculty<span class="text-blue-600">Monitor</span></h1>
+            <div class="flex items-center gap-2 mt-1">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Live Attendance Feed</p>
+            </div>
         </div>
-        <button onclick="fetchData()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-blue-200 flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-            Refresh Data
+        <button onclick="fetchData()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-lg flex items-center gap-2 active:scale-95">
+            REFRESH FEED
         </button>
     </div>
 
-    <div class="max-w-6xl mx-auto card rounded-2xl p-6 mb-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="max-w-6xl mx-auto card rounded-3xl p-6 mb-8 grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
-            <label class="block text-[10px] font-bold text-blue-400 uppercase mb-2">Search Date</label>
-            <input type="date" id="filterDate" onchange="applyFilters()" class="w-full bg-blue-50 border border-blue-100 rounded-xl px-4 py-2.5 text-sm font-semibold text-blue-900 outline-none focus:ring-2 focus:ring-blue-500">
+            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Search Date</label>
+            <input type="date" id="filterDate" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold text-blue-900 outline-none focus:ring-2 focus:ring-blue-500">
         </div>
         <div>
-            <label class="block text-[10px] font-bold text-blue-400 uppercase mb-2">Grade & Section</label>
-            <select id="filterSection" onchange="applyFilters()" class="w-full bg-blue-50 border border-blue-100 rounded-xl px-4 py-2.5 text-sm font-semibold text-blue-900 outline-none focus:ring-2 focus:ring-blue-500">
+            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Grade & Section</label>
+            <select id="filterSection" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold text-blue-900 outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">All Sections</option>
-                <option>Grade 7 - ALEXANDRITE</option>
-                <option>Grade 7 - RUBY</option>
-                <option>Grade 8 - AQUAMARINE</option>
-                <option>Grade 8 - DIAMOND</option>
-                <option>Grade 9 - AMETHYST</option>
-                <option>Grade 9 - MOONSTONE</option>
-                <option>Grade 10 - EMERALD</option>
-                <option>Grade 10 - JADE</option>
-                <option>Grade 11 - ABM</option>
-                <option>Grade 11 - HUMSS</option>
-                <option>Grade 11 - TVL</option>
-                <option>Grade 12 - ABM</option>
-                <option>Grade 12 - HUMSS</option>
-                <option>Grade 12 - TVL</option>
+                <option>Grade 7 - ALEXANDRITE</option><option>Grade 7 - RUBY</option>
+                <option>Grade 8 - AQUAMARINE</option><option>Grade 8 - DIAMOND</option>
+                <option>Grade 9 - AMETHYST</option><option>Grade 9 - MOONSTONE</option>
+                <option>Grade 10 - EMERALD</option><option>Grade 10 - JADE</option>
+                <option>Grade 11 - ABM</option><option>Grade 11 - HUMSS</option><option>Grade 11 - TVL</option>
+                <option>Grade 12 - ABM</option><option>Grade 12 - HUMSS</option><option>Grade 12 - TVL</option>
             </select>
         </div>
         <div>
-            <label class="block text-[10px] font-bold text-blue-400 uppercase mb-2">Subject</label>
-            <select id="filterSubject" onchange="applyFilters()" class="w-full bg-blue-50 border border-blue-100 rounded-xl px-4 py-2.5 text-sm font-semibold text-blue-900 outline-none focus:ring-2 focus:ring-blue-500">
+            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Subject</label>
+            <select id="filterSubject" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold text-blue-900 outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">All Subjects</option>
-                <option>ENGLISH</option>
-                <option>MATHEMATICS</option>
-                <option>SCIENCE</option>
-                <option>FILIPINO</option>
-                <option>HISTORY</option>
-                <option>ICT Specialization</option>
+                <option>ENGLISH</option><option>MATHEMATICS</option><option>SCIENCE</option>
+                <option>FILIPINO</option><option>ARALING PANLIPUNAN</option><option>MAPEH</option>
+                <option>TLE</option><option>VALUES EDUCATION</option>
             </select>
         </div>
         <div class="flex items-end">
-            <button onclick="resetFilters()" class="w-full py-2.5 text-sm font-bold text-blue-400 hover:text-blue-600 transition-colors">Clear Filters</button>
+            <button onclick="resetFilters()" class="w-full py-3 text-xs font-black text-slate-400 hover:text-blue-600 transition-colors uppercase tracking-widest">Clear Filters</button>
         </div>
     </div>
 
-    <div class="max-w-6xl mx-auto card rounded-2xl p-2 relative min-h-[400px]">
-        <div id="loadingOverlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-2xl">
-            <div class="loader ease-linear rounded-full border-4 border-t-4 border-blue-100 h-12 w-12"></div>
+    <div class="max-w-6xl mx-auto card rounded-3xl p-2 relative min-h-[400px]">
+        <div id="loadingOverlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-3xl">
+            <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 h-10 w-10"></div>
         </div>
 
         <div class="table-container">
             <table class="w-full text-left">
                 <thead>
-                    <tr>
-                        <th class="px-6 py-4">Timestamp</th>
-                        <th class="px-6 py-4">Student Information</th>
-                        <th class="px-6 py-4">Grade & Section</th>
-                        <th class="px-6 py-4">Subject</th>
-                        <th class="px-6 py-4 text-center">Status</th>
+                    <tr class="border-b border-slate-100">
+                        <th class="px-6 py-5 rounded-tl-2xl">Log Time</th>
+                        <th class="px-6 py-5">Student / ID</th>
+                        <th class="px-6 py-5">Grade & Section</th>
+                        <th class="px-6 py-5">Subject</th>
+                        <th class="px-6 py-5 text-center rounded-tr-2xl">Action</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody" class="text-sm font-medium text-slate-700"></tbody>
+                <tbody id="tableBody" class="text-sm font-semibold text-slate-600"></tbody>
             </table>
         </div>
-        <div id="noData" class="hidden py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">
-            No matching records found
+        <div id="noData" class="hidden py-24 text-center">
+            <p class="text-slate-300 font-black uppercase tracking-[0.2em] text-xs">No records found for this criteria</p>
         </div>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxXzRKEYaeBGYfb2THqnxWM9nV5qb-6EwzKQ8NOOuL2QPsowJdmNB88CJpc7hhwR6e4/exec";
+        // Ensure this matches your Web App URL
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTpRVKFshoZL1sVMk7pkZmhmObNvv_lfvMWPMBnLxN-qIA5_XUh1m-qkeLOXFe3qBQ/exec";
         let masterData = [];
 
         /**
-         * IMPROVED: formatTimestamp
-         * Uses Intl.DateTimeFormat to force a specific timezone and clean format.
+         * Robust key finder to handle variations in Google Sheet JSON output
          */
-        function formatTimestamp(ts) {
-            if (!ts || ts === 'N/A') return 'N/A';
-            
-            try {
-                const date = new Date(ts);
-                if (isNaN(date.getTime())) return ts;
-
-                // Configure for Philippines Time (GMT+8) and MM-DD-YYYY format
-                const options = {
-                    timeZone: 'Asia/Manila',
-                    month: '2-digit',
-                    day: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                };
-
-                const formatter = new Intl.DateTimeFormat('en-US', options);
-                const parts = formatter.formatToParts(date);
-                
-                // Extract parts to build our custom string: MM-DD-YYYY | HH:MM AM/PM
-                const map = new Map(parts.map(p => [p.type, p.value]));
-                return `${map.get('month')}-${map.get('day')}-${map.get('year')} | ${map.get('hour')}:${map.get('minute')} ${map.get('dayPeriod')}`;
-                
-            } catch (e) {
-                console.error("Format Error:", e);
-                return ts;
+        function getValue(obj, possibleKeys) {
+            for (let key of possibleKeys) {
+                // Check exact match, lowercase match, and spaceless match
+                let found = Object.keys(obj).find(k => 
+                    k.toLowerCase().replace(/[^a-z0-9]/g, '') === key.toLowerCase().replace(/[^a-z0-9]/g, '')
+                );
+                if (found) return obj[found];
             }
+            return "N/A";
+        }
+
+        function formatTimestamp(ts) {
+            if (!ts || ts === 'N/A') return '---';
+            const date = new Date(ts);
+            if (isNaN(date.getTime())) return ts;
+            
+            return new Intl.DateTimeFormat('en-US', {
+                timeZone: 'Asia/Manila',
+                month: 'short', day: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', hour12: true
+            }).format(date);
         }
 
         async function fetchData() {
@@ -139,12 +124,10 @@
             loader.classList.remove('hidden');
             try {
                 const response = await fetch(SCRIPT_URL);
-                if (!response.ok) throw new Error('Network response was not ok');
                 masterData = await response.json();
                 renderTable(masterData);
             } catch (e) {
-                console.error("Error:", e);
-                alert("Could not load data. Ensure the script is deployed correctly.");
+                console.error("Fetch Error:", e);
             } finally {
                 loader.classList.add('hidden');
             }
@@ -158,28 +141,31 @@
             if (!data || data.length === 0) {
                 noData.classList.remove('hidden');
                 return;
-            } else {
-                noData.classList.add('hidden');
             }
+            noData.classList.add('hidden');
 
-            data.forEach(item => {
-                const studentName = item["studentinformation"] || "Unknown";
-                const gradeSection = item["grade&section"] || "N/A";
-                const subjectName = item["subject"] || "N/A";
-                const logStatus = item["status"] || "N/A";
+            // Sort data: newest first
+            const sortedData = [...data].reverse();
 
-                const statusClass = logStatus === "Time In" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700";
-                
+            sortedData.forEach(item => {
+                const student = getValue(item, ["studentinformation", "studentId", "id"]);
+                const section = getValue(item, ["grade&section", "grade", "section"]);
+                const subject = getValue(item, ["subject"]);
+                const status = getValue(item, ["status"]);
+                const time = formatTimestamp(getValue(item, ["timestamp"]));
+
+                const statusColor = status === "Time In" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-rose-50 text-rose-600 border-rose-100";
+
                 const row = `
-                    <tr class="border-t border-slate-50 transition-colors">
-                        <td class="px-6 py-4 text-slate-400 font-mono text-[11px] whitespace-nowrap">
-                            ${formatTimestamp(item.timestamp)}
+                    <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                        <td class="px-6 py-4 font-mono text-[10px] text-slate-400">${time}</td>
+                        <td class="px-6 py-4 font-bold text-blue-900">${student}</td>
+                        <td class="px-6 py-4 text-slate-500 text-xs">${section}</td>
+                        <td class="px-6 py-4">
+                            <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase">${subject}</span>
                         </td>
-                        <td class="px-6 py-4 font-bold text-blue-900">${studentName}</td>
-                        <td class="px-6 py-4 text-slate-500">${gradeSection}</td>
-                        <td class="px-6 py-4"><span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-[10px] font-bold">${subjectName}</span></td>
                         <td class="px-6 py-4 text-center">
-                            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${statusClass}">${logStatus}</span>
+                            <span class="px-3 py-1.5 rounded-xl text-[9px] font-black border uppercase ${statusColor}">${status}</span>
                         </td>
                     </tr>
                 `;
@@ -195,13 +181,12 @@
             const filtered = masterData.filter(item => {
                 let dateMatch = true;
                 if(dateVal) {
-                    // Normalize date comparison to local date string YYYY-MM-DD
-                    const itemDate = new Date(item.timestamp).toLocaleDateString('en-CA'); // en-CA gives YYYY-MM-DD
+                    const itemDate = new Date(getValue(item, ["timestamp"])).toLocaleDateString('en-CA');
                     dateMatch = (itemDate === dateVal);
                 }
 
-                const sectionMatch = sectionVal === "" || item["grade&section"] === sectionVal;
-                const subjectMatch = subjectVal === "" || item["subject"] === subjectVal;
+                const sectionMatch = sectionVal === "" || getValue(item, ["grade&section"]) === sectionVal;
+                const subjectMatch = subjectVal === "" || getValue(item, ["subject"]) === subjectVal;
 
                 return dateMatch && sectionMatch && subjectMatch;
             });
@@ -216,6 +201,8 @@
             renderTable(masterData);
         }
 
+        // Auto-refresh every 30 seconds
+        setInterval(fetchData, 30000);
         window.onload = fetchData;
     </script>
 </body>

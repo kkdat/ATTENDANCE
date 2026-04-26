@@ -40,7 +40,6 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
-        /* Professional Scanner UI */
         .scanner-container {
             position: relative;
             width: 280px;
@@ -48,12 +47,10 @@
             z-index: 20;
         }
 
-        /* The 'Hole' in the dark overlay */
         .scanner-overlay {
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0.6);
-            /* This creates the transparent cutout */
             mask: radial-gradient(circle 140px at center, transparent 100%, black 100%);
             -webkit-mask: radial-gradient(circle 140px at center, transparent 99%, black 100%);
         }
@@ -246,8 +243,18 @@
     </div>
 
     <script>
-        // LOGIC PRESERVED FROM YOUR CODE
-        const AUTHORIZED_USERS = { "admin": "wcgnhs2026", "teacher1": "1234" };
+        // 1. CONTACT DATABASE: Map Student QR ID to Parent Phone Number
+        const STUDENT_CONTACTS = {
+            "STU-001": "09123456789",
+            "STU-002": "09987654321",
+            "ADD_YOUR_ID_HERE": "PHONE_NUMBER"
+        };
+
+        const AUTHORIZED_USERS = { 
+            "admin": "wcgnhs2026",
+            "Rolly T. Bernardo": "RTB2026",
+            "Grace G. Labso": "GGL2026" 
+        };
 
         function checkAuth() {
             const loggedUser = sessionStorage.getItem("terminal_user");
@@ -327,12 +334,25 @@
         function closeModal() {
             document.getElementById('modal').classList.add('hidden');
             qrData = null;
-            setTimeout(() => { scanning = true; tick(); }, 1000);
+            setTimeout(() => { if(!document.getElementById('scanner-view').classList.contains('hidden')) {scanning = true; tick();} }, 1000);
         }
 
+        // 2. INTEGRATED: Send Notification Logic
         async function sendData() {
-            // Your existing fetch logic here...
-            alert("Sent: " + qrData);
+            const subject = document.getElementById('subject').value;
+            const parentNumber = STUDENT_CONTACTS[qrData];
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            if (parentNumber) {
+                // Construct the Message
+                const message = `WCGNHS Attendance: Student ${qrData} has recorded a ${currentStatus.toUpperCase()} for ${subject} at ${time}.`;
+                
+                // Trigger the phone's SMS app
+                window.location.href = `sms:${parentNumber}?body=${encodeURIComponent(message)}`;
+            } else {
+                alert(`Attendance saved for ${qrData}. (No parent number found in database)`);
+            }
+
             closeModal();
             stopCamera();
         }

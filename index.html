@@ -24,7 +24,6 @@
         .scan-laser { position: absolute; left: 0; width: 100%; height: 3px; background: linear-gradient(to right, transparent, #3b82f6, transparent); box-shadow: 0 0 15px 2px rgba(59, 130, 246, 0.8); animation: scanning 2s infinite ease-in-out; z-index: 25; }
         @keyframes scanning { 0%, 100% { top: 0%; } 50% { top: 100%; } }
         
-        /* Updated Navigation Style */
         .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; padding: 12px 10px 24px 10px; z-index: 100; box-shadow: 0 -10px 25px -5px rgba(0,0,0,0.05); }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex: 1; font-size: 10px; font-weight: 800; color: #94a3b8; transition: all 0.2s ease; cursor: pointer; text-transform: uppercase; letter-spacing: 0.02em; }
         .nav-item.active { color: #2563eb; }
@@ -158,11 +157,19 @@
 
     <script>
         const AUTHORIZED_USERS = { 
-                            "admin": "wcgnhs2026", 
-                            "Rolly T. Bernardo": "RTB2026", 
-                            "Grace G. Labso": "GGL2026" 
-                            };
+            "admin": "wcgnhs2026", 
+            "Rolly T. Bernardo": "RTB2026", 
+            "Grace G. Labso": "GGL2026" 
+        };
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyuGKYJzMhsaDnGKlRj1VPnaySS0VFU58EF4MnXJRwAFtZgewwbaKDtmUwVw4QtfUCp/exec";
+
+        // --- Fullscreen Utility ---
+        function enterFullscreen() {
+            const doc = document.documentElement;
+            if (doc.requestFullscreen) doc.requestFullscreen();
+            else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
+            else if (doc.msRequestFullscreen) doc.msRequestFullscreen();
+        }
 
         function checkAuth() {
             const loggedUser = sessionStorage.getItem("terminal_user");
@@ -177,12 +184,22 @@
             const user = document.getElementById('user-input').value.trim();
             const pass = document.getElementById('pass-input').value.trim();
             if (AUTHORIZED_USERS[user] && AUTHORIZED_USERS[user] === pass) {
+                // Enter fullscreen on successful click (gesture requirement)
+                enterFullscreen();
                 sessionStorage.setItem("terminal_user", user);
                 checkAuth();
-            } else { document.getElementById('login-error').classList.remove('hidden'); }
+            } else { 
+                document.getElementById('login-error').classList.remove('hidden'); 
+            }
         }
 
-        function logout() { sessionStorage.removeItem("terminal_user"); location.reload(); }
+        function logout() { 
+            sessionStorage.removeItem("terminal_user"); 
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+            location.reload(); 
+        }
 
         let currentStatus = "Time In", scanning = false, qrData = null;
         const video = document.getElementById('video'), canvasElement = document.getElementById('canvas'), canvas = canvasElement.getContext('2d');

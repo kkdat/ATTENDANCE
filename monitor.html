@@ -14,24 +14,40 @@
         th { background-color: #f1f5f9; color: #475569; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.1em; font-weight: 800; }
         .loader { border-top-color: #2563eb; animation: spinner 1s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Custom styling for the search input focus */
+        .search-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
-    <div class="max-w-6xl mx-auto mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-3xl font-black text-blue-900 tracking-tighter uppercase">Faculty<span class="text-blue-600">Monitor</span></h1>
-            <div class="flex items-center gap-2 mt-1">
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Live Attendance Feed</p>
+    <div class="max-w-6xl mx-auto mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+            <img src="WCGNHS.png" alt="WCGNHS Logo" class="h-14 w-auto object-contain">
+            <div>
+                <h1 class="text-3xl font-black text-blue-900 tracking-tighter uppercase">Faculty<span class="text-blue-600">Monitor</span></h1>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Live Attendance Feed</p>
+                </div>
             </div>
         </div>
-        <button onclick="fetchData(true)" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-lg flex items-center gap-2 active:scale-95">
-            REFRESH FEED
-        </button>
+        
+        <div class="flex flex-1 max-w-2xl items-center gap-3">
+            <div class="relative flex-1">
+                <input type="text" id="nameSearch" oninput="applyFilters()" placeholder="Search student name..." 
+                    class="search-input w-full bg-white border border-slate-200 rounded-2xl px-5 py-3 text-sm font-bold text-blue-900 outline-none transition-all pl-11">
+                <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+            <button onclick="fetchData(true)" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-lg flex items-center gap-2 active:scale-95 whitespace-nowrap">
+                REFRESH FEED
+            </button>
+        </div>
     </div>
 
     <div class="max-w-6xl mx-auto card rounded-3xl p-6 mb-8 grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -43,21 +59,34 @@
             <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Grade & Section</label>
             <select id="filterSection" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold text-blue-900 outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">All Sections</option>
-                <option>Grade 7 - ALEXANDRITE</option><option>Grade 7 - RUBY</option>
-                <option>Grade 8 - AQUAMARINE</option><option>Grade 8 - DIAMOND</option>
-                <option>Grade 9 - AMETHYST</option><option>Grade 9 - MOONSTONE</option>
-                <option>Grade 10 - EMERALD</option><option>Grade 10 - JADE</option>
-                <option>Grade 11 - ABM</option><option>Grade 11 - HUMSS</option><option>Grade 11 - TVL</option>
-                <option>Grade 12 - ABM</option><option>Grade 12 - HUMSS</option><option>Grade 12 - TVL</option>
+                <option>Grade 7 - ALEXANDRITE</option>
+                <option>Grade 7 - RUBY</option>
+                <option>Grade 8 - AQUAMARINE</option>
+                <option>Grade 8 - DIAMOND</option>
+                <option>Grade 9 - AMETHYST</option>
+                <option>Grade 9 - MOONSTONE</option>
+                <option>Grade 10 - EMERALD</option>
+                <option>Grade 10 - JADE</option>
+                <option>Grade 11 - ABM</option>
+                <option>Grade 11 - HUMSS</option>
+                <option>Grade 11 - TVL</option>
+                <option>Grade 12 - ABM</option>
+                <option>Grade 12 - HUMSS</option>
+                <option>Grade 12 - TVL</option>
             </select>
         </div>
         <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Subject</label>
             <select id="filterSubject" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold text-blue-900 outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">All Subjects</option>
-                <option>ENGLISH</option><option>MATHEMATICS</option><option>SCIENCE</option>
-                <option>FILIPINO</option><option>ARALING PANLIPUNAN</option><option>MAPEH</option>
-                <option>TLE</option><option>VALUES EDUCATION</option>
+                <option>ENGLISH</option>
+                <option>MATHEMATICS</option>
+                <option>SCIENCE</option>
+                <option>FILIPINO</option>
+                <option>ARALING PANLIPUNAN</option>
+                <option>MAPEH</option>
+                <option>TLE</option>
+                <option>VALUES EDUCATION</option>
             </select>
         </div>
         <div class="flex items-end">
@@ -114,9 +143,6 @@
             }).format(date);
         }
 
-        /**
-         * Enhanced fetchData with showLoader parameter
-         */
         async function fetchData(showLoader = false) {
             const loader = document.getElementById('loadingOverlay');
             if (showLoader) loader.classList.remove('hidden');
@@ -124,7 +150,7 @@
             try {
                 const response = await fetch(SCRIPT_URL);
                 masterData = await response.json();
-                applyFilters(); // Re-apply current filters to the new data
+                applyFilters();
             } catch (e) {
                 console.error("Fetch Error:", e);
             } finally {
@@ -175,16 +201,22 @@
             const dateVal = document.getElementById('filterDate').value;
             const sectionVal = document.getElementById('filterSection').value;
             const subjectVal = document.getElementById('filterSubject').value;
+            const searchVal = document.getElementById('nameSearch').value.toLowerCase();
 
             const filtered = masterData.filter(item => {
+                const student = getValue(item, ["studentinformation", "studentId", "id"]).toString().toLowerCase();
+                
                 let dateMatch = true;
                 if(dateVal) {
                     const itemDate = new Date(getValue(item, ["timestamp"])).toLocaleDateString('en-CA');
                     dateMatch = (itemDate === dateVal);
                 }
+                
                 const sectionMatch = sectionVal === "" || getValue(item, ["grade&section"]) === sectionVal;
                 const subjectMatch = subjectVal === "" || getValue(item, ["subject"]) === subjectVal;
-                return dateMatch && sectionMatch && subjectMatch;
+                const searchMatch = searchVal === "" || student.includes(searchVal);
+
+                return dateMatch && sectionMatch && subjectMatch && searchMatch;
             });
 
             renderTable(filtered);
@@ -194,15 +226,12 @@
             document.getElementById('filterDate').value = "";
             document.getElementById('filterSection').value = "";
             document.getElementById('filterSubject').value = "";
+            document.getElementById('nameSearch').value = "";
             renderTable(masterData);
         }
 
-        // --- NEW FEATURES ---
-
-        // 1. Initial load shows the spinner
         window.onload = () => fetchData(true);
 
-        // 2. Auto-refresh every 10 seconds (Silent - no spinner)
         setInterval(() => {
             fetchData(false);
         }, 10000);

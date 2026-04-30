@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Faculty Monitor | WCGNHS</title>
+    <link rel="icon" type="image/png" href="WCGNHS.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
@@ -18,17 +19,22 @@
 <body class="p-4 md:p-8">
 
     <div class="max-w-6xl mx-auto mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-3xl font-black text-blue-900 tracking-tighter uppercase">Faculty<span class="text-blue-600">Monitor</span></h1>
-            <div class="flex items-center gap-2 mt-1">
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Live Attendance Feed</p>
+        <div class="flex items-center gap-4">
+            <img src="WCGNHS.png" alt="WCGNHS Logo" class="h-14 w-auto object-contain">
+            
+            <div>
+                <h1 class="text-3xl font-black text-blue-900 tracking-tighter uppercase">Faculty<span class="text-blue-600">Monitor</span></h1>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Live Attendance Feed</p>
+                </div>
             </div>
         </div>
-        <button onclick="fetchData()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-lg flex items-center gap-2 active:scale-95">
+        
+        <button onclick="fetchData(true)" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-lg flex items-center gap-2 active:scale-95">
             REFRESH FEED
         </button>
     </div>
@@ -65,7 +71,7 @@
     </div>
 
     <div class="max-w-6xl mx-auto card rounded-3xl p-2 relative min-h-[400px]">
-        <div id="loadingOverlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-3xl">
+        <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-3xl">
             <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 h-10 w-10"></div>
         </div>
 
@@ -89,16 +95,11 @@
     </div>
 
     <script>
-        // Ensure this matches your Web App URL
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyuGKYJzMhsaDnGKlRj1VPnaySS0VFU58EF4MnXJRwAFtZgewwbaKDtmUwVw4QtfUCp/exec";
         let masterData = [];
 
-        /**
-         * Robust key finder to handle variations in Google Sheet JSON output
-         */
         function getValue(obj, possibleKeys) {
             for (let key of possibleKeys) {
-                // Check exact match, lowercase match, and spaceless match
                 let found = Object.keys(obj).find(k => 
                     k.toLowerCase().replace(/[^a-z0-9]/g, '') === key.toLowerCase().replace(/[^a-z0-9]/g, '')
                 );
@@ -111,7 +112,6 @@
             if (!ts || ts === 'N/A') return '---';
             const date = new Date(ts);
             if (isNaN(date.getTime())) return ts;
-            
             return new Intl.DateTimeFormat('en-US', {
                 timeZone: 'Asia/Manila',
                 month: 'short', day: '2-digit', year: 'numeric',
@@ -119,17 +119,18 @@
             }).format(date);
         }
 
-        async function fetchData() {
+        async function fetchData(showLoader = false) {
             const loader = document.getElementById('loadingOverlay');
-            loader.classList.remove('hidden');
+            if (showLoader) loader.classList.remove('hidden');
+            
             try {
                 const response = await fetch(SCRIPT_URL);
                 masterData = await response.json();
-                renderTable(masterData);
+                applyFilters();
             } catch (e) {
                 console.error("Fetch Error:", e);
             } finally {
-                loader.classList.add('hidden');
+                if (showLoader) loader.classList.add('hidden');
             }
         }
 
@@ -144,7 +145,6 @@
             }
             noData.classList.add('hidden');
 
-            // Sort data: newest first
             const sortedData = [...data].reverse();
 
             sortedData.forEach(item => {
@@ -184,10 +184,8 @@
                     const itemDate = new Date(getValue(item, ["timestamp"])).toLocaleDateString('en-CA');
                     dateMatch = (itemDate === dateVal);
                 }
-
                 const sectionMatch = sectionVal === "" || getValue(item, ["grade&section"]) === sectionVal;
                 const subjectMatch = subjectVal === "" || getValue(item, ["subject"]) === subjectVal;
-
                 return dateMatch && sectionMatch && subjectMatch;
             });
 
@@ -201,9 +199,12 @@
             renderTable(masterData);
         }
 
-        // Auto-refresh every 30 seconds
-        setInterval(fetchData, 30000);
-        window.onload = fetchData;
+        window.onload = () => fetchData(true);
+
+        setInterval(() => {
+            fetchData(false);
+        }, 10000);
+
     </script>
 </body>
 </html>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WCGNHS Attendance Pro</title>
-    <link rel="icon" type="image/png" href="WCGNHS.png">
+    <link class="rounded-full" rel="icon" type="image/png" href="WCGNHS.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1e3a8a">
@@ -52,8 +52,8 @@
     </div>
 
     <div id="app-content">
-        <div class="app-shell px-5 pt-8">
-            <header class="flex justify-between items-center mb-8">
+        <header class="app-shell px-5 pt-8 pb-0 min-h-0">
+            <div class="flex justify-between items-center mb-6">
                 <div class="flex items-center gap-3">
                     <img src="WCGNHS.png" alt="Logo" class="h-10 w-10 object-contain">
                     <div>
@@ -61,8 +61,10 @@
                         <p id="active-user-display" class="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase mt-1">User: --</p>
                     </div>
                 </div>
-            </header>
+            </div>
+        </header>
 
+        <div class="app-shell px-5 pt-0">
             <div id="main-view">
                 <div class="card p-1.5 flex bg-slate-100 mb-6">
                     <button onclick="setStatus('Time In')" id="btn-in" class="flex-1 py-3 rounded-2xl text-xs font-black transition-all bg-white text-blue-600 shadow-sm">TIME IN</button>
@@ -125,7 +127,7 @@
         </div>
 
         <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-end">
-            <div class="bg-white w-full rounded-t-[40px] p-8 shadow-2xl">
+            <div class="bg-white w-full rounded-t-[40px] p-8 shadow-2xl max-w-[500px] mx-auto">
                 <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
                 <h2 class="text-2xl font-black text-blue-900 mb-6 text-center">Scan Successful</h2>
                 <div class="p-5 bg-blue-50 rounded-3xl mb-10">
@@ -134,7 +136,7 @@
                 </div>
                 <div class="flex gap-4 mb-6">
                     <button onclick="closeModal()" class="flex-1 py-5 bg-slate-100 text-slate-500 font-black rounded-3xl btn-press uppercase text-xs">Retry</button>
-                    <button id="confirm-btn" onclick="sendData()" class="flex-2 w-[60%] py-5 bg-blue-600 text-white font-black rounded-3xl shadow-lg uppercase tracking-widest btn-press text-xs">Submit</button>
+                    <button id="confirm-btn" onclick="sendData()" class="w-[60%] py-5 bg-blue-600 text-white font-black rounded-3xl shadow-lg uppercase tracking-widest btn-press text-xs">Submit</button>
                 </div>
             </div>
         </div>
@@ -157,13 +159,12 @@
 
     <script>
         const AUTHORIZED_USERS = { 
-            "admin": "wcgnhs2026", 
-            "Rolly T. Bernardo": "RTB2026", 
-            "Grace G. Labso": "GGL2026" 
+            "admin": "wcgnhs2026"
         };
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyuGKYJzMhsaDnGKlRj1VPnaySS0VFU58EF4MnXJRwAFtZgewwbaKDtmUwVw4QtfUCp/exec";
+        
+        // IMPORTANT: Remember to update this with your newly deployed App Script Web App execution URL!
+        const WEB_APP_URL = "PASTE_YOUR_GOOGLE_APP_SCRIPT_HERE";
 
-        // --- Fullscreen Utility ---
         function enterFullscreen() {
             const doc = document.documentElement;
             if (doc.requestFullscreen) doc.requestFullscreen();
@@ -184,7 +185,6 @@
             const user = document.getElementById('user-input').value.trim();
             const pass = document.getElementById('pass-input').value.trim();
             if (AUTHORIZED_USERS[user] && AUTHORIZED_USERS[user] === pass) {
-                // Enter fullscreen on successful click (gesture requirement)
                 enterFullscreen();
                 sessionStorage.setItem("terminal_user", user);
                 checkAuth();
@@ -245,6 +245,7 @@
             const btn = document.getElementById('confirm-btn');
             btn.disabled = true;
             btn.innerText = "RECORDING...";
+            
             const payload = {
                 studentId: qrData,
                 status: currentStatus,
@@ -252,14 +253,31 @@
                 subject: document.getElementById('subject').value,
                 recordedBy: sessionStorage.getItem("terminal_user")
             };
+            
             try {
-                await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-                alert("Successfully recorded!");
-                btn.disabled = false; btn.innerText = "SUBMIT";
-                closeModal(); stopCamera();
+                // Sent as plain text to securely circumvent Google App Script CORS preflight hurdles
+                const response = await fetch(WEB_APP_URL, { 
+                    method: "POST", 
+                    mode: "cors", 
+                    headers: { "Content-Type": "text/plain" }, 
+                    body: JSON.stringify(payload) 
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === "success") {
+                    alert("Successfully recorded & SMS alert sent!");
+                    btn.disabled = false; 
+                    btn.innerText = "SUBMIT";
+                    closeModal(); 
+                    stopCamera();
+                } else {
+                    throw new Error(result.message || "Backend transaction failed.");
+                }
             } catch (err) {
-                alert("Recording failed.");
-                btn.disabled = false; btn.innerText = "SUBMIT";
+                alert("Transaction failed: " + err.message);
+                btn.disabled = false; 
+                btn.innerText = "SUBMIT";
             }
         }
     </script>

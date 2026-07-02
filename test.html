@@ -2,159 +2,145 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NCC MMW Attendance Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Monitor | NCC</title>
     <link rel="icon" type="image/png" href="NCC.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#7f1d1d">
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght400;600;700;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #fdfbf7; 
-            color: #7f1d1d; 
-            overflow-x: hidden; 
-            -webkit-tap-highlight-color: transparent; 
+        body { font-family: 'Inter', sans-serif; background-color: #fdfbf7; color: #7f1d1d; }
+        .card { background: white; border: 2px solid #f59e0b; box-shadow: 0 4px 12px rgba(127, 29, 29, 0.08); }
+        .table-container { overflow-x: auto; border-radius: 1rem; }
+        th { background-color: #7f1d1d; color: #f59e0b; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.1em; font-weight: 800; }
+        .loader { border-top-color: #d97706; animation: spinner 1s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .search-input:focus { border-color: #d97706; box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1); }
+
+        /* Hidden main content until initialized */
+        #monitor-content { display: none; }
+
+        /* Initialization Screen Overlay Overhauled with Maroon & Gold gradient */
+        #init-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #7f1d1d, #450a0a);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
         }
-        #app-content { display: none; }
-        .app-shell { max-width: 500px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 100px; }
-        
-        /* NCC Styled Components */
-        .card { 
-            background: white; 
-            border-radius: 24px; 
-            border: 2px solid #f59e0b; /* Gold Border */
-            box-shadow: 0 4px 12px rgba(127, 29, 29, 0.08); 
-        }
-        .scanner-container { position: relative; width: 280px; height: 280px; z-index: 20; }
-        .scanner-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.6); mask: radial-gradient(circle 140px at center, transparent 100%, black 100%); -webkit-mask: radial-gradient(circle 140px at center, transparent 99%, black 100%); }
-        .corner-bracket { position: absolute; width: 30px; height: 30px; border: 4px solid #d97706; z-index: 30; }
-        .scan-laser { position: absolute; left: 0; width: 100%; height: 3px; background: linear-gradient(to right, transparent, #d97706, transparent); box-shadow: 0 0 15px 2px rgba(217, 119, 6, 0.8); animation: scanning 2s infinite ease-in-out; z-index: 25; }
-        @keyframes scanning { 0%, 100% { top: 0%; } 50% { top: 100%; } }
-        
-        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-top: 2px solid #f59e0b; display: flex; justify-content: space-around; padding: 12px 10px 24px 10px; z-index: 100; box-shadow: 0 -10px 25px -5px rgba(127, 29, 29, 0.05); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex: 1; font-size: 10px; font-weight: 800; color: #94a3b8; transition: all 0.2s ease; cursor: pointer; text-transform: uppercase; letter-spacing: 0.02em; }
-        .nav-item.active { color: #7f1d1d; }
-        .nav-item.logout-color { color: #b91c1c; opacity: 0.7; }
-        .nav-item.logout-color:active { opacity: 1; }
-        .nav-icon { width: 22px; height: 22px; }
-        
-        .btn-press:active { transform: scale(0.96); }
     </style>
 </head>
-<body onload="checkAuth()">
+<body class="p-4 md:p-8">
 
-    <div id="login-overlay" class="fixed inset-0 bg-gradient-to-b from-red-950 to-red-900 z-[999] flex items-center justify-center p-6">
-        <div class="card w-full max-w-sm p-8 space-y-6">
-            <div class="text-center flex flex-col items-center">
-                <img src="NCC.png" alt="NCC Logo" class="h-20 w-20 mb-4 object-contain">
-                <h1 class="text-2xl font-black text-red-900 uppercase tracking-tighter">Terminal<span class="text-amber-600"> Login</span></h1>
-                <p class="text-[10px] font-bold text-amber-600 tracking-widest uppercase mt-1">Northern Christian College</p>
-            </div>
-            <div class="space-y-4">
-                <input type="text" id="user-input" placeholder="Username" class="w-full bg-stone-50 border border-stone-200 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-amber-500 text-red-900">
-                <input type="password" id="pass-input" placeholder="Password" class="w-full bg-stone-50 border border-stone-200 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-amber-500 text-red-900">
-                <button onclick="handleLogin()" class="btn-press w-full py-4 bg-red-800 text-amber-400 font-black rounded-2xl shadow-lg hover:bg-red-900 transition-all uppercase tracking-widest text-sm border border-amber-500">Sign In</button>
-            </div>
-            <p id="login-error" class="text-center text-red-600 text-[10px] font-bold uppercase hidden">Invalid Credentials</p>
-        </div>
+    <div id="init-screen">
+        <img src="NCC.png" alt="Logo" class="h-24 w-24 mb-6 animate-pulse">
+        <h1 class="text-3xl font-black uppercase tracking-tighter mb-2">Faculty <span class="text-amber-500">Monitor</span></h1>
+        <p class="text-amber-200/80 text-sm mb-8 px-6 font-semibold">Click to activate live monitor and enter fullscreen mode.</p>
+        <button onclick="launchMonitor()" class="bg-white text-red-900 px-12 py-4 rounded-2xl font-black uppercase tracking-widest shadow-2xl active:scale-95 transition-transform hover:bg-stone-50 border-2 border-amber-500">
+            Activate Monitor
+        </button>
     </div>
 
-    <div id="app-content">
-        <div class="app-shell px-5 pt-8">
-            <header class="flex justify-between items-center mb-8">
-                <div class="flex items-center gap-3">
-                    <img src="NCC.png" alt="Logo" class="h-12 w-12 object-contain">
-                    <div>
-                        <h1 class="text-xl font-black text-red-900 tracking-tighter uppercase leading-none">Attendance <span class="text-amber-600">Pro</span></h1>
-                        <p id="active-user-display" class="text-[9px] font-bold text-stone-400 tracking-[0.2em] uppercase mt-1">User: --</p>
+    <div id="monitor-content">
+        <div class="max-w-6xl mx-auto mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div class="flex items-center gap-4">
+                <img src="NCC.png" alt="NCC Logo" class="h-14 w-auto object-contain">
+                <div>
+                    <h1 class="text-3xl font-black text-red-900 tracking-tighter uppercase">Faculty<span class="text-amber-600">Monitor</span></h1>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <p class="text-stone-400 text-[10px] font-bold uppercase tracking-widest">Live Attendance Feed</p>
                     </div>
                 </div>
-            </header>
-
-            <div id="main-view">
-                <div class="card p-1.5 flex bg-stone-100 mb-6 border-stone-200">
-                    <button onclick="setStatus('Time In')" id="btn-in" class="flex-1 py-3 rounded-2xl text-xs font-black transition-all bg-red-800 text-amber-400 shadow-sm">TIME IN</button>
-                    <button onclick="setStatus('Time Out')" id="btn-out" class="flex-1 py-3 rounded-2xl text-xs font-black transition-all text-stone-500">TIME OUT</button>
+            </div>
+            
+            <div class="flex flex-1 max-w-2xl items-center gap-3">
+                <div class="relative flex-1">
+                    <input type="text" id="nameSearch" oninput="applyFilters()" placeholder="Search student name..." 
+                        class="search-input w-full bg-white border border-stone-200 rounded-2xl px-5 py-3 text-sm font-bold text-red-900 outline-none transition-all pl-11">
+                    <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
                 </div>
-
-                <div class="card p-6 space-y-5 mb-6">
-                    <div>
-                        <label class="block text-[10px] font-black text-red-900/60 uppercase mb-2 ml-1">Year & Section</label>
-                        <select id="section" class="w-full bg-stone-50 border border-stone-200 rounded-2xl px-4 py-4 text-sm font-bold text-red-900 focus:ring-2 focus:ring-amber-500 outline-none">
-                            <option>BSN 1A</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-red-900/60 uppercase mb-2 ml-1">Subject</label>
-                        <select id="subject" class="w-full bg-stone-50 border border-stone-200 rounded-2xl px-4 py-4 text-sm font-bold text-red-900 focus:ring-2 focus:ring-amber-500 outline-none">
-                            <option>Mathematics in the Modern World</option>
-                        </select>
-                    </div>
-                </div>
-
-                <button onclick="initCamera()" class="btn-press w-full py-5 bg-red-800 hover:bg-red-900 text-amber-400 font-black rounded-3xl shadow-xl transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm border border-amber-500">
-                    Open Scanner
+                <button onclick="fetchData(true)" class="bg-red-800 hover:bg-red-900 text-amber-400 border border-amber-500 px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-lg flex items-center gap-2 active:scale-95 whitespace-nowrap">
+                    REFRESH FEED
                 </button>
             </div>
+        </div>
 
-            <div id="scanner-view" class="hidden fixed inset-0 bg-black z-[200] flex flex-col items-center justify-center">
-                <video id="video" class="absolute inset-0 w-full h-full object-cover"></video>
-                <canvas id="canvas" class="hidden"></canvas>
-                <div class="scanner-overlay"></div>
-                <button onclick="stopCamera()" class="absolute top-12 right-6 z-[50] bg-white/10 backdrop-blur-xl p-3 rounded-full text-white">✕</button>
-                <div class="scanner-container">
-                    <div class="corner-bracket top-0 left-0 border-r-0 border-b-0 rounded-tl-3xl"></div>
-                    <div class="corner-bracket top-0 right-0 border-l-0 border-b-0 rounded-tr-3xl"></div>
-                    <div class="corner-bracket bottom-0 left-0 border-r-0 border-t-0 rounded-bl-3xl"></div>
-                    <div class="corner-bracket bottom-0 right-0 border-l-0 border-t-0 rounded-br-3xl"></div>
-                    <div class="scan-laser"></div>
-                </div>
+        <div class="max-w-6xl mx-auto card rounded-3xl p-6 mb-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-[10px] font-black text-red-900/60 uppercase mb-2 ml-1">Search Date</label>
+                <input type="date" id="filterDate" onchange="applyFilters()" class="w-full bg-stone-50 border border-stone-200 rounded-2xl px-4 py-3 text-sm font-bold text-red-900 outline-none focus:ring-2 focus:ring-amber-500">
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-red-900/60 uppercase mb-2 ml-1">Grade & Section</label>
+                <select id="filterSection" onchange="applyFilters()" class="w-full bg-stone-50 border border-stone-200 rounded-2xl px-4 py-3 text-sm font-bold text-red-900 outline-none focus:ring-2 focus:ring-amber-500">
+                    <option value="">All Sections</option>
+                    <option>Grade 7 - ALEXANDRITE</option>
+                    <option>Grade 7 - RUBY</option>
+                    <option>Grade 8 - AQUAMARINE</option>
+                    <option>Grade 8 - DIAMOND</option>
+                    <option>Grade 9 - AMETHYST</option>
+                    <option>Grade 9 - MOONSTONE</option>
+                    <option>Grade 10 - EMERALD</option>
+                    <option>Grade 10 - JADE</option>
+                    <option>Grade 11 - ABM</option>
+                    <option>Grade 11 - HUMSS</option>
+                    <option>Grade 11 - TVL</option>
+                    <option>Grade 12 - ABM</option>
+                    <option>Grade 12 - HUMSS</option>
+                    <option>Grade 12 - TVL</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-red-900/60 uppercase mb-2 ml-1">Subject</label>
+                <select id="filterSubject" onchange="applyFilters()" class="w-full bg-stone-50 border border-stone-200 rounded-2xl px-4 py-3 text-sm font-bold text-red-900 outline-none focus:ring-2 focus:ring-amber-500">
+                    <option value="">All Subjects</option>
+                    <option>Mathematics in the Modern World</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button onclick="resetFilters()" class="w-full py-3 text-xs font-black text-stone-400 hover:text-red-800 transition-colors uppercase tracking-widest">Clear Filters</button>
             </div>
         </div>
 
-        <div id="modal" class="hidden fixed inset-0 bg-red-950/60 backdrop-blur-sm z-[300] flex items-end">
-            <div class="bg-white w-full rounded-t-[40px] p-8 shadow-2xl border-t-4 border-amber-500">
-                <div class="w-12 h-1.5 bg-stone-200 rounded-full mx-auto mb-8"></div>
-                <h2 class="text-2xl font-black text-red-900 mb-6 text-center">Scan Successful</h2>
-                <div class="p-5 bg-stone-50 border border-amber-200 rounded-3xl mb-10">
-                    <span class="text-[10px] font-black text-amber-600 uppercase tracking-wider">ID Data</span>
-                    <div id="qr-result" class="text-xl font-black text-red-900 mt-1 break-all">--</div>
-                </div>
-                <div class="flex gap-4 mb-6">
-                    <button onclick="closeModal()" class="flex-1 py-5 bg-stone-100 text-stone-500 font-black rounded-3xl btn-press uppercase text-xs">Retry</button>
-                    <button id="confirm-btn" onclick="sendData()" class="flex-2 w-[60%] py-5 bg-red-800 text-amber-400 font-black rounded-3xl shadow-lg uppercase tracking-widest btn-press text-xs border border-amber-500">Submit</button>
-                </div>
+        <div class="max-w-6xl mx-auto card rounded-3xl p-2 relative min-h-[400px]">
+            <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-3xl">
+                <div class="loader ease-linear rounded-full border-4 border-t-4 border-stone-200 h-10 w-10"></div>
+            </div>
+
+            <div class="table-container">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-stone-100">
+                            <th class="px-6 py-5 rounded-tl-2xl">Log Time</th>
+                            <th class="px-6 py-5">Student / ID</th>
+                            <th class="px-6 py-5">Grade & Section</th>
+                            <th class="px-6 py-5">Subject</th>
+                            <th class="px-6 py-5 text-center rounded-tr-2xl">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="text-sm font-semibold text-stone-600"></tbody>
+                </table>
+            </div>
+            <div id="noData" class="hidden py-24 text-center">
+                <p class="text-stone-300 font-black uppercase tracking-[0.2em] text-xs">No records found for this criteria</p>
             </div>
         </div>
-
-        <nav class="bottom-nav">
-            <div class="nav-item active" onclick="location.reload()">
-                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                Home
-            </div>
-            <div class="nav-item" onclick="window.open('monitor.html', '_blank')">
-                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                Monitor
-            </div>
-            <div class="nav-item logout-color" onclick="logout()">
-                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                Logout
-            </div>
-        </nav>
     </div>
 
     <script>
-        const AUTHORIZED_USERS = { 
-            "darsqt": "DCA2026", 
-            "Grace G. Labso": "GGL2026" 
-        };
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyuGKYJzMhsaDnGKlRj1VPnaySS0VFU58EF4MnXJRwAFtZgewwbaKDtmUwVw4QtfUCp/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyuGKYJzMhsaDnGKlRj1VPnaySS0VFU58EF4MnXJRwAFtZgewwbaKDtmUwVw4QtfUCp/exec";
+        let masterData = [];
 
         function enterFullscreen() {
             const doc = document.documentElement;
@@ -163,95 +149,121 @@
             else if (doc.msRequestFullscreen) doc.msRequestFullscreen();
         }
 
-        function checkAuth() {
-            const loggedUser = sessionStorage.getItem("terminal_user");
-            if (loggedUser) {
-                document.getElementById('login-overlay').classList.add('hidden');
-                document.getElementById('app-content').style.display = 'block';
-                document.getElementById('active-user-display').innerText = "Logged in: " + loggedUser;
+        function launchMonitor() {
+            enterFullscreen();
+            document.getElementById('init-screen').style.display = 'none';
+            document.getElementById('monitor-content').style.display = 'block';
+            fetchData(true);
+            
+            setInterval(() => fetchData(false), 10000);
+        }
+
+        function getValue(obj, possibleKeys) {
+            for (let key of possibleKeys) {
+                let found = Object.keys(obj).find(k => 
+                    k.toLowerCase().replace(/[^a-z0-9]/g, '') === key.toLowerCase().replace(/[^a-z0-9]/g, '')
+                );
+                if (found) return obj[found];
             }
+            return "N/A";
         }
 
-        function handleLogin() {
-            const user = document.getElementById('user-input').value.trim();
-            const pass = document.getElementById('pass-input').value.trim();
-            if (AUTHORIZED_USERS[user] && AUTHORIZED_USERS[user] === pass) {
-                enterFullscreen();
-                sessionStorage.setItem("terminal_user", user);
-                checkAuth();
-            } else { 
-                document.getElementById('login-error').classList.remove('hidden'); 
-            }
+        function formatTimestamp(ts) {
+            if (!ts || ts === 'N/A') return '---';
+            const date = new Date(ts);
+            if (isNaN(date.getTime())) return ts;
+            return new Intl.DateTimeFormat('en-US', {
+                timeZone: 'Asia/Manila',
+                month: 'short', day: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', hour12: true
+            }).format(date);
         }
 
-        function logout() { 
-            sessionStorage.removeItem("terminal_user"); 
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
-            }
-            location.reload(); 
-        }
-
-        let currentStatus = "Time In", scanning = false, qrData = null;
-        const video = document.getElementById('video'), canvasElement = document.getElementById('canvas'), canvas = canvasElement.getContext('2d');
-
-        function setStatus(s) {
-            currentStatus = s;
-            document.getElementById('btn-in').className = s === 'Time In' ? "flex-1 py-3 rounded-2xl text-xs font-black transition-all bg-red-800 text-amber-400 shadow-sm" : "flex-1 py-3 rounded-2xl text-xs font-black transition-all text-stone-500";
-            document.getElementById('btn-out').className = s === 'Time Out' ? "flex-1 py-3 rounded-2xl text-xs font-black transition-all bg-red-800 text-amber-400 shadow-sm" : "flex-1 py-3 rounded-2xl text-xs font-black transition-all text-stone-500";
-        }
-
-        async function initCamera() {
-            document.getElementById('scanner-view').classList.remove('hidden');
+        async function fetchData(showLoader = false) {
+            const loader = document.getElementById('loadingOverlay');
+            if (showLoader) loader.classList.remove('hidden');
+            
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                video.srcObject = stream;
-                video.setAttribute("playsinline", true);
-                video.play();
-                scanning = true;
-                requestAnimationFrame(tick);
-            } catch (err) { alert("Camera Error"); }
-        }
-
-        function stopCamera() {
-            scanning = false;
-            if (video.srcObject) video.srcObject.getTracks().forEach(track => track.stop());
-            document.getElementById('scanner-view').classList.add('hidden');
-        }
-
-        function tick() {
-            if (video.readyState === video.HAVE_ENOUGH_DATA && scanning) {
-                canvasElement.width = video.videoWidth; canvasElement.height = video.videoHeight;
-                canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
-                const code = jsQR(canvas.getImageData(0, 0, canvasElement.width, canvasElement.height).data, canvasElement.width, canvasElement.height);
-                if (code) { qrData = code.data; showModal(); }
+                const response = await fetch(SCRIPT_URL);
+                masterData = await response.json();
+                applyFilters();
+            } catch (e) {
+                console.error("Fetch Error:", e);
+            } finally {
+                if (showLoader) loader.classList.add('hidden');
             }
-            if (scanning) requestAnimationFrame(tick);
         }
 
-        function showModal() { scanning = false; document.getElementById('qr-result').innerText = qrData; document.getElementById('modal').classList.remove('hidden'); }
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); qrData = null; setTimeout(() => { scanning = true; tick(); }, 1000); }
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            const noData = document.getElementById('noData');
+            tbody.innerHTML = "";
 
-        async function sendData() {
-            const btn = document.getElementById('confirm-btn');
-            btn.disabled = true;
-            btn.innerText = "RECORDING...";
-            const payload = {
-                studentId: qrData,
-                status: currentStatus,
-                section: document.getElementById('section').value,
-                subject: document.getElementById('subject').value,
-                recordedBy: sessionStorage.getItem("terminal_user")
-            };
-            try {
-                await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-                alert("Successfully recorded!");
-                btn.disabled = false; btn.innerText = "SUBMIT";
-                closeModal(); stopCamera();
-            } catch (err) {
-                alert("Recording failed.");
-                btn.disabled = false; btn.innerText = "SUBMIT";
+            if (!data || data.length === 0) {
+                noData.classList.remove('hidden');
+                return;
             }
+            noData.classList.add('hidden');
+
+            const sortedData = [...data].reverse();
+
+            sortedData.forEach(item => {
+                const student = getValue(item, ["studentinformation", "studentId", "id"]);
+                const section = getValue(item, ["grade&section", "grade", "section"]);
+                const subject = getValue(item, ["subject"]);
+                const status = getValue(item, ["status"]);
+                const time = formatTimestamp(getValue(item, ["timestamp"]));
+
+                const statusColor = status === "Time In" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-rose-50 text-rose-600 border-rose-100";
+
+                const row = `
+                    <tr class="border-b border-stone-50 hover:bg-stone-50/50 transition-colors">
+                        <td class="px-6 py-4 font-mono text-[10px] text-stone-400">${time}</td>
+                        <td class="px-6 py-4 font-bold text-red-900">${student}</td>
+                        <td class="px-6 py-4 text-stone-500 text-xs">${section}</td>
+                        <td class="px-6 py-4">
+                            <span class="bg-stone-100 text-red-900 border border-amber-200 px-3 py-1 rounded-lg text-[10px] font-black uppercase">${subject}</span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="px-3 py-1.5 rounded-xl text-[9px] font-black border uppercase ${statusColor}">${status}</span>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function applyFilters() {
+            const dateVal = document.getElementById('filterDate').value;
+            const sectionVal = document.getElementById('filterSection').value;
+            const subjectVal = document.getElementById('filterSubject').value;
+            const searchVal = document.getElementById('nameSearch').value.toLowerCase();
+
+            const filtered = masterData.filter(item => {
+                const student = getValue(item, ["studentinformation", "studentId", "id"]).toString().toLowerCase();
+                
+                let dateMatch = true;
+                if(dateVal) {
+                    const itemDate = new Date(getValue(item, ["timestamp"])).toLocaleDateString('en-CA');
+                    dateMatch = (itemDate === dateVal);
+                }
+                
+                const sectionMatch = sectionVal === "" || getValue(item, ["grade&section"]) === sectionVal;
+                const subjectMatch = subjectVal === "" || getValue(item, ["subject"]) === subjectVal;
+                const searchMatch = searchVal === "" || student.includes(searchVal);
+
+                return dateMatch && sectionMatch && subjectMatch && searchMatch;
+            });
+
+            renderTable(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('filterDate').value = "";
+            document.getElementById('filterSection').value = "";
+            document.getElementById('filterSubject').value = "";
+            document.getElementById('nameSearch').value = "";
+            renderTable(masterData);
         }
     </script>
 </body>
